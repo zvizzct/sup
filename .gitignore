@@ -48,3 +48,12 @@ coverage/
 *.log
 *.local
 
+CLAUDE.md
+.claude/
+.claude/settings.local.json
+.claude/settings.production.json
+.claude/settings.development.json
+.claude/settings.test.json
+.claude/settings.production.json
+.claude/settings.development.json
+.claude/settings.test.json

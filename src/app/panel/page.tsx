@@ -1,313 +1,347 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Header, Footer } from "@/components/layout";
-import {
-  FileText,
-  Bell,
-  Calendar,
-  Briefcase,
-  Users,
-  FileCheck,
-  MessageSquare,
-  ChevronRight,
-  AlertCircle,
-  Info,
-  Download,
-  FolderOpen,
-  Shield,
-  Scale,
-  User,
-  Building,
-} from "lucide-react";
+import { Download, Scale, Phone, Mail, FileUp, Calendar, History, CheckCircle } from "lucide-react";
+import { PDFViewer, SyncFooter } from "@/components/shared";
+import { ExpedienteAccordion, Documento } from "@/components/panel";
 
-// Datos de ejemplo
+// Datos del usuario
 const userData = {
   name: "Juan García López",
   tip: "12345",
-  escala: "Escala Básica",
-  categoria: "Policía",
-  destino: "Comisaría Eixample (Barcelona)",
-  antiguedad: "15 años",
+  destino: "Comisaría Provincial de Barcelona",
   afiliadoDesde: "01/03/2010",
+  antiguedad: "15 años",
 };
 
-const comunicadosRecientes = [
-  {
-    id: 1,
-    tipo: "urgente",
-    titulo: "Nuevo plazo concurso de traslados",
-    fecha: "Hace 2 horas",
-    extracto: "Se ha publicado la resolución con el nuevo plazo para presentar solicitudes...",
+// Datos de expedientes con documentos
+const expedientes: Record<string, { titulo: string; descripcion: string; documentos: Documento[] }> = {
+  disciplinario: {
+    titulo: "Expediente Disciplinario",
+    descripcion: "Expedientes disciplinarios, sanciones, recursos y alegaciones",
+    documentos: [
+      { id: "ED-2024-001", nombre: "Expediente 2024/1234 - Pliego de cargos", fecha: "12/12/2024", estado: "pendiente", tipo: "PDF" },
+      { id: "ED-2024-002", nombre: "Alegaciones presentadas - Exp. 2024/1234", fecha: "15/12/2024", estado: "pendiente", tipo: "PDF" },
+      { id: "ED-2023-001", nombre: "Resolución sancionadora Exp. 2023/0892", fecha: "15/03/2024", estado: "archivado", tipo: "PDF" },
+      { id: "ED-2023-002", nombre: "Recurso de alzada Exp. 2023/0892", fecha: "20/03/2024", estado: "archivado", tipo: "PDF" },
+    ],
   },
-  {
-    id: 2,
-    tipo: "info",
-    titulo: "Acta reunión trimestral disponible",
-    fecha: "Hace 1 día",
-    extracto: "Ya podéis consultar el acta de la última reunión trimestral...",
+  contencioso: {
+    titulo: "Recursos Contencioso-Administrativos",
+    descripcion: "Recursos judiciales, demandas y sentencias",
+    documentos: [
+      { id: "RCA-2024-001", nombre: "Recurso CA 456/2024 - Escrito de interposición", fecha: "20/11/2024", estado: "pendiente", tipo: "PDF" },
+      { id: "RCA-2024-002", nombre: "Auto de admisión - Recurso CA 456/2024", fecha: "05/12/2024", estado: "vigente", tipo: "PDF" },
+      { id: "RCA-2023-001", nombre: "Sentencia TSJ 2023/7821", fecha: "08/06/2024", estado: "archivado", tipo: "PDF" },
+    ],
   },
-  {
-    id: 3,
-    tipo: "convocatoria",
-    titulo: "Asamblea de afiliados - Enero 2025",
-    fecha: "Hace 3 días",
-    extracto: "Se convoca asamblea ordinaria de afiliados del SUP...",
+  administrativo: {
+    titulo: "Expedientes Administrativos",
+    descripcion: "Permisos, licencias, situaciones administrativas y solicitudes",
+    documentos: [
+      { id: "EA-2024-001", nombre: "Solicitud comisión de servicios", fecha: "05/12/2024", estado: "pendiente", tipo: "PDF" },
+      { id: "EA-2024-002", nombre: "Resolución permiso sin sueldo", fecha: "01/11/2024", estado: "vigente", tipo: "PDF" },
+      { id: "EA-2024-003", nombre: "Certificado de servicios prestados", fecha: "15/10/2024", estado: "vigente", tipo: "PDF" },
+      { id: "EA-2024-004", nombre: "Solicitud excedencia voluntaria", fecha: "20/09/2024", estado: "archivado", tipo: "PDF" },
+      { id: "EA-2024-005", nombre: "Resolución cambio de destino", fecha: "01/09/2024", estado: "vigente", tipo: "PDF" },
+    ],
   },
-];
-
-const proximosPlazos = [
-  { fecha: "15 Ene", titulo: "Plazo instancias comisión de servicio" },
-  { fecha: "20 Ene", titulo: "Reunión trimestral JSP Barcelona" },
-  { fecha: "31 Ene", titulo: "Plazo solicitud vestuario" },
-];
-
-const accesosRapidos = [
-  { icon: FileText, label: "Instancias", href: "/documentos/instancias", color: "bg-blue-100 text-blue-600" },
-  { icon: Briefcase, label: "Vestuario", href: "/documentos/vestuario", color: "bg-amber-100 text-amber-600" },
-  { icon: FileCheck, label: "Reclamaciones", href: "/documentos/reclamaciones", color: "bg-green-100 text-green-600" },
-  { icon: Building, label: "Comisión Servicio", href: "/documentos/comision-servicio", color: "bg-purple-100 text-purple-600" },
-  { icon: Users, label: "Trimestrales", href: "/documentos/trimestrales", color: "bg-indigo-100 text-indigo-600" },
-  { icon: Scale, label: "Vacantes", href: "/vacantes", color: "bg-pink-100 text-pink-600" },
-];
+  servicio: {
+    titulo: "Actos de Servicio",
+    descripcion: "Atestados, informes, intervenciones y reconocimientos",
+    documentos: [
+      { id: "AS-2024-001", nombre: "Atestado intervención 14/11/2024", fecha: "15/11/2024", estado: "archivado", tipo: "PDF" },
+      { id: "AS-2024-002", nombre: "Informe actuación operativo conjunto", fecha: "01/11/2024", estado: "archivado", tipo: "PDF" },
+      { id: "AS-2024-003", nombre: "Felicitación por actuación destacada", fecha: "22/09/2024", estado: "vigente", tipo: "PDF" },
+      { id: "AS-2024-004", nombre: "Parte de lesiones en acto de servicio", fecha: "10/08/2024", estado: "archivado", tipo: "PDF" },
+    ],
+  },
+  personal: {
+    titulo: "Asuntos Personales",
+    descripcion: "Temas penales, defensa jurídica personal y reclamaciones",
+    documentos: [
+      { id: "AP-2024-001", nombre: "Consulta jurídica - Accidente tráfico", fecha: "28/11/2024", estado: "pendiente", tipo: "PDF" },
+      { id: "AP-2024-002", nombre: "Escrito defensa procedimiento penal", fecha: "15/10/2024", estado: "vigente", tipo: "PDF" },
+      { id: "AP-2023-001", nombre: "Resolución reclamación patrimonial", fecha: "10/08/2024", estado: "archivado", tipo: "PDF" },
+    ],
+  },
+  abogado: {
+    titulo: "Solicitudes de Abogado",
+    descripcion: "Historial de solicitudes de asistencia jurídica",
+    documentos: [
+      { id: "SA-2024-001", nombre: "Solicitud abogado - Recurso de alzada", fecha: "10/12/2024", estado: "pendiente", tipo: "PDF" },
+      { id: "SA-2024-002", nombre: "Asignación letrado - Exp. disciplinario", fecha: "01/12/2024", estado: "vigente", tipo: "PDF" },
+      { id: "SA-2024-003", nombre: "Informe actuación letrada - Caso 2024/456", fecha: "15/11/2024", estado: "archivado", tipo: "PDF" },
+    ],
+  },
+};
 
 export default function PanelPage() {
   const t = useTranslations("panel");
-  const tComm = useTranslations("communications");
+  const [openSections, setOpenSections] = useState<string[]>(["disciplinario"]);
+  const [viewerOpen, setViewerOpen] = useState(false);
+  const [selectedDocument, setSelectedDocument] = useState<Documento | null>(null);
+
+  const toggleSection = (id: string) => {
+    setOpenSections((prev) =>
+      prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]
+    );
+  };
+
+  const handleViewDocument = (doc: Documento) => {
+    setSelectedDocument(doc);
+    setViewerOpen(true);
+  };
+
+  const handleCloseViewer = () => {
+    setViewerOpen(false);
+    setSelectedDocument(null);
+  };
+
+  const handleDownloadDocument = (doc: Documento) => {
+    const pdfUrl = "/documents/sample.pdf";
+    const link = document.createElement("a");
+    link.href = pdfUrl;
+    link.download = `${doc.id}.pdf`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
-      <Header variant="private" userName={userData.name} />
+    <div className="min-h-screen flex flex-col bg-gray-100">
+      <Header
+        variant="private"
+        userName={userData.name}
+        userTip={userData.tip}
+        userDestino={userData.destino}
+      />
 
-      <main className="flex-1">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Bienvenida */}
-          <div className="bg-white rounded-lg shadow-card border border-gray-200 p-6 mb-6">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <div>
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                    <span className="w-1.5 h-1.5 rounded-full bg-green-500 mr-1.5"></span>
-                    {t("affiliateZone")}
-                  </span>
-                </div>
-                <h1 className="font-heading text-2xl font-bold text-gray-900">
-                  {t("welcome")}, {userData.name}
-                </h1>
-                <p className="text-gray-600 mt-1">
-                  TIP: {userData.tip} · {userData.escala} · {userData.destino}
-                </p>
-              </div>
+      <main className="flex-1 pb-20 lg:pb-0">
+        {/* Barra de título */}
+        <div className="bg-white border-b border-gray-200 shadow-sm">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4">
+            <h1 className="text-sm sm:text-base font-bold text-gray-900 uppercase tracking-wide">
+              Mis Expedientes
+            </h1>
+            <p className="text-xs sm:text-sm text-gray-600 mt-0.5">
+              Gestión de documentos y expedientes personales
+            </p>
+          </div>
+        </div>
+
+        {/* Contenido principal */}
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
+          {/* Móvil: Quick actions horizontal scroll */}
+          <div className="lg:hidden mb-4 -mx-4 px-4 overflow-x-auto scrollbar-hide">
+            <div className="flex gap-2 pb-2">
               <Link
-                href="/mi-perfil"
-                className="btn-secondary text-sm self-start sm:self-auto"
+                href="/solicitar-abogado"
+                className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 bg-sup-blue text-white text-sm font-semibold rounded-lg shadow-md hover:bg-sup-blue-dark active:scale-95 transition-all"
               >
-                <User className="w-4 h-4" />
-                {t("myAffiliation")}
+                <Scale className="w-4 h-4" />
+                Solicitar Abogado
+              </Link>
+              <a
+                href="tel:914615833"
+                className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-300 text-gray-800 text-sm font-medium rounded-lg shadow-sm hover:bg-gray-50 active:scale-95 transition-all"
+              >
+                <Phone className="w-4 h-4 text-sup-blue" />
+                Urgencias
+              </a>
+              <Link
+                href="/subir-documento"
+                className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-300 text-gray-800 text-sm font-medium rounded-lg shadow-sm hover:bg-gray-50 active:scale-95 transition-all"
+              >
+                <FileUp className="w-4 h-4 text-gray-600" />
+                Subir
               </Link>
             </div>
           </div>
 
-          <div className="grid lg:grid-cols-3 gap-6">
-            {/* Columna principal */}
-            <div className="lg:col-span-2 space-y-6">
-              {/* Comunicados recientes */}
-              <div className="bg-white rounded-lg shadow-card border border-gray-200">
-                <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-                  <h2 className="font-heading font-semibold text-gray-900 flex items-center gap-2">
-                    <Bell className="w-5 h-5 text-sup-blue" />
-                    {t("recentCommunications")}
-                  </h2>
-                  <Link href="/comunicados" className="text-sm text-sup-blue hover:text-sup-blue-dark font-medium">
-                    {t("viewAll")} →
-                  </Link>
-                </div>
-                <div className="divide-y divide-gray-100">
-                  {comunicadosRecientes.map((comunicado) => (
-                    <div key={comunicado.id} className="px-6 py-4 hover:bg-gray-50 transition-colors">
-                      <div className="flex items-start gap-3">
-                        <div className={`mt-0.5 flex-shrink-0 ${
-                          comunicado.tipo === "urgente"
-                            ? "text-red-500"
-                            : comunicado.tipo === "info"
-                            ? "text-blue-500"
-                            : "text-green-500"
-                        }`}>
-                          {comunicado.tipo === "urgente" ? (
-                            <AlertCircle className="w-5 h-5" />
-                          ) : comunicado.tipo === "info" ? (
-                            <Info className="w-5 h-5" />
-                          ) : (
-                            <Calendar className="w-5 h-5" />
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className={`badge ${
-                              comunicado.tipo === "urgente"
-                                ? "badge-red"
-                                : comunicado.tipo === "info"
-                                ? "badge-blue"
-                                : "badge-green"
-                            }`}>
-                              {comunicado.tipo === "urgente" ? tComm("urgent") : comunicado.tipo === "info" ? tComm("informative") : tComm("convocation")}
-                            </span>
-                            <span className="text-xs text-gray-500">{comunicado.fecha}</span>
-                          </div>
-                          <h3 className="font-medium text-gray-900 mb-1">{comunicado.titulo}</h3>
-                          <p className="text-sm text-gray-600 line-clamp-2">{comunicado.extracto}</p>
-                        </div>
-                        <ChevronRight className="w-5 h-5 text-gray-400 flex-shrink-0" />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Acceso rápido a documentos */}
-              <div className="bg-white rounded-lg shadow-card border border-gray-200">
-                <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-                  <h2 className="font-heading font-semibold text-gray-900 flex items-center gap-2">
-                    <FolderOpen className="w-5 h-5 text-sup-blue" />
-                    {t("quickAccess")}
-                  </h2>
-                  <Link href="/documentos" className="text-sm text-sup-blue hover:text-sup-blue-dark font-medium">
-                    {t("viewAll")} →
-                  </Link>
-                </div>
-                <div className="p-6">
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                    {accesosRapidos.map((acceso) => (
-                      <Link
-                        key={acceso.label}
-                        href={acceso.href}
-                        className="flex flex-col items-center p-4 rounded-lg border border-gray-200 hover:border-sup-blue hover:shadow-md transition-all group"
-                      >
-                        <div className={`w-12 h-12 rounded-lg ${acceso.color} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
-                          <acceso.icon className="w-6 h-6" />
-                        </div>
-                        <span className="text-sm font-medium text-gray-700 text-center group-hover:text-sup-blue">
-                          {acceso.label}
-                        </span>
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Mi Expediente Personal */}
-              <div className="bg-gradient-to-r from-red-50 to-red-100 rounded-lg border border-red-200 p-6">
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-lg bg-red-500 text-white flex items-center justify-center flex-shrink-0">
-                    <Shield className="w-6 h-6" />
-                  </div>
-                  <div className="flex-1">
-                    <h2 className="font-heading font-semibold text-gray-900 mb-1">
-                      {t("myPersonalFile")}
-                    </h2>
-                    <p className="text-sm text-gray-600 mb-4">
-                      {t("myPersonalFileDesc")}
-                    </p>
-                    <Link href="/mi-expediente" className="btn-primary">
-                      {t("accessMyFile")} →
-                    </Link>
-                  </div>
-                </div>
-              </div>
+          <div className="grid lg:grid-cols-4 gap-4 sm:gap-6">
+            {/* Columna principal - Acordeones */}
+            <div className="lg:col-span-3 space-y-1">
+              {Object.entries(expedientes).map(([id, data]) => (
+                <ExpedienteAccordion
+                  key={id}
+                  id={id}
+                  titulo={data.titulo}
+                  descripcion={data.descripcion}
+                  documentos={data.documentos}
+                  isOpen={openSections.includes(id)}
+                  onToggle={() => toggleSection(id)}
+                  onViewDocument={handleViewDocument}
+                  onDownloadDocument={handleDownloadDocument}
+                />
+              ))}
             </div>
 
-            {/* Sidebar derecho */}
-            <div className="space-y-6">
-              {/* Próximos plazos */}
-              <div className="bg-white rounded-lg shadow-card border border-gray-200">
-                <div className="px-6 py-4 border-b border-gray-200">
-                  <h2 className="font-heading font-semibold text-gray-900 flex items-center gap-2">
-                    <Calendar className="w-5 h-5 text-sup-blue" />
-                    {t("upcomingDeadlines")}
-                  </h2>
-                </div>
-                <div className="p-4">
-                  <div className="space-y-3">
-                    {proximosPlazos.map((plazo, i) => (
-                      <div key={i} className="flex items-start gap-3 p-3 rounded-lg bg-gray-50">
-                        <div className="flex-shrink-0 w-14 text-center">
-                          <div className="text-xs text-gray-500 uppercase">2025</div>
-                          <div className="font-bold text-sup-blue">{plazo.fecha}</div>
-                        </div>
-                        <div className="flex-1">
-                          <p className="text-sm text-gray-700">{plazo.titulo}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  <Link
-                    href="/calendario"
-                    className="block mt-4 text-center text-sm text-sup-blue hover:text-sup-blue-dark font-medium"
+            {/* Sidebar - Hidden en móvil, visible en desktop */}
+            <div className="hidden lg:block space-y-4">
+              {/* Solicitar Abogado */}
+              <div className="bg-white border border-gray-200 p-4 shadow-sm">
+                <Link
+                  href="/solicitar-abogado"
+                  className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-sup-blue text-white text-sm font-semibold hover:bg-sup-blue-dark transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-sup-blue focus-visible:ring-offset-2 shadow-sm"
+                >
+                  <Scale className="w-4 h-4" aria-hidden="true" />
+                  Solicitar Abogado
+                </Link>
+                <p className="text-xs text-gray-500 mt-2 text-center">
+                  Solicita asistencia jurídica para tu caso
+                </p>
+              </div>
+
+              {/* Asistencia Jurídica */}
+              <div className="bg-white border border-gray-200 p-4 shadow-sm">
+                <h2 className="text-xs font-bold text-gray-900 uppercase tracking-wide mb-3">
+                  Asistencia Jurídica
+                </h2>
+                <div className="space-y-3">
+                  <a
+                    href="tel:914615833"
+                    className="flex items-center gap-3 p-2 -mx-2 rounded hover:bg-gray-50 transition-colors group"
                   >
-                    {t("viewFullCalendar")} →
+                    <div className="w-8 h-8 rounded-full bg-sup-blue/10 flex items-center justify-center">
+                      <Phone className="w-4 h-4 text-sup-blue" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500">Urgencias 24h</p>
+                      <p className="text-sm font-bold text-gray-900 group-hover:text-sup-blue transition-colors">914 615 833</p>
+                    </div>
+                  </a>
+                  <a
+                    href="mailto:juridico@sup.es"
+                    className="flex items-center gap-3 p-2 -mx-2 rounded hover:bg-gray-50 transition-colors group"
+                  >
+                    <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
+                      <Mail className="w-4 h-4 text-gray-600" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500">Correo electrónico</p>
+                      <p className="text-sm font-medium text-gray-900 group-hover:text-sup-blue transition-colors">juridico@sup.es</p>
+                    </div>
+                  </a>
+                </div>
+              </div>
+
+              {/* Estado afiliación */}
+              <div className="bg-white border border-gray-200 p-4 shadow-sm">
+                <h2 className="text-xs font-bold text-gray-900 uppercase tracking-wide mb-3">
+                  Estado de Afiliación
+                </h2>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between py-1">
+                    <span className="text-sm text-gray-600">Estado</span>
+                    <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-green-700">
+                      <CheckCircle className="w-4 h-4" />
+                      Activo
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between py-1">
+                    <span className="text-sm text-gray-600">Alta</span>
+                    <span className="text-sm font-medium text-gray-900 tabular-nums">{userData.afiliadoDesde}</span>
+                  </div>
+                  <div className="flex items-center justify-between py-1">
+                    <span className="text-sm text-gray-600">Antigüedad</span>
+                    <span className="text-sm font-medium text-gray-900">{userData.antiguedad}</span>
+                  </div>
+                </div>
+                <div className="mt-3 pt-3 border-t border-gray-100">
+                  <Link
+                    href="/certificado-afiliacion"
+                    className="flex items-center justify-center gap-2 w-full px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 transition-colors"
+                  >
+                    <Download className="w-4 h-4" aria-hidden="true" />
+                    Descargar certificado
                   </Link>
                 </div>
               </div>
 
-              {/* Info afiliación */}
-              <div className="bg-white rounded-lg shadow-card border border-gray-200">
-                <div className="px-6 py-4 border-b border-gray-200">
-                  <h2 className="font-heading font-semibold text-gray-900 flex items-center gap-2">
-                    <Users className="w-5 h-5 text-sup-blue" />
-                    {t("myAffiliation")}
-                  </h2>
-                </div>
-                <div className="p-4 space-y-3 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">{t("status")}</span>
-                    <span className="badge badge-green">{t("active")}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">{t("affiliateSince")}</span>
-                    <span className="font-medium text-gray-900">{userData.afiliadoDesde}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">{t("seniority")}</span>
-                    <span className="font-medium text-gray-900">{userData.antiguedad}</span>
-                  </div>
-                  <div className="pt-3 border-t border-gray-100">
-                    <Link
-                      href="/mi-perfil/certificados"
-                      className="flex items-center justify-between text-sup-blue hover:text-sup-blue-dark"
-                    >
-                      <span className="flex items-center gap-2">
-                        <Download className="w-4 h-4" />
-                        {t("affiliateCertificate")}
-                      </span>
-                      <ChevronRight className="w-4 h-4" />
-                    </Link>
-                  </div>
-                </div>
+              {/* Acciones rápidas */}
+              <div className="bg-white border border-gray-200 p-4 shadow-sm">
+                <h2 className="text-xs font-bold text-gray-900 uppercase tracking-wide mb-3">
+                  Acciones
+                </h2>
+                <nav className="space-y-0.5" aria-label="Acciones rápidas">
+                  <Link
+                    href="/subir-documento"
+                    className="flex items-center gap-3 px-2 py-2.5 text-sm text-gray-700 hover:bg-gray-50 rounded transition-colors"
+                  >
+                    <FileUp className="w-4 h-4 text-gray-500" />
+                    Subir documento
+                  </Link>
+                  <Link
+                    href="/cita-previa"
+                    className="flex items-center gap-3 px-2 py-2.5 text-sm text-gray-700 hover:bg-gray-50 rounded transition-colors"
+                  >
+                    <Calendar className="w-4 h-4 text-gray-500" />
+                    Solicitar cita previa
+                  </Link>
+                  <Link
+                    href="/historial"
+                    className="flex items-center gap-3 px-2 py-2.5 text-sm text-gray-700 hover:bg-gray-50 rounded transition-colors"
+                  >
+                    <History className="w-4 h-4 text-gray-500" />
+                    Ver historial completo
+                  </Link>
+                </nav>
               </div>
+            </div>
+          </div>
 
-              {/* Contacto rápido */}
-              <div className="bg-sup-blue rounded-lg p-6 text-white">
-                <h3 className="font-heading font-semibold mb-2 flex items-center gap-2">
-                  <MessageSquare className="w-5 h-5" />
-                  {t("needHelp")}
-                </h3>
-                <p className="text-sm text-blue-100 mb-4">
-                  {t("helpText")}
-                </p>
+          {/* Móvil: Estado de afiliación colapsado */}
+          <div className="lg:hidden mt-6">
+            <div className="bg-white border border-gray-200 p-4 shadow-sm rounded-lg">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
+                    <CheckCircle className="w-5 h-5 text-green-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-gray-900">Afiliación Activa</p>
+                    <p className="text-xs text-gray-500">Desde {userData.afiliadoDesde} · {userData.antiguedad}</p>
+                  </div>
+                </div>
                 <Link
-                  href="/contacto"
-                  className="block w-full text-center py-2 bg-white text-sup-blue font-semibold rounded hover:bg-gray-100 transition-colors"
+                  href="/certificado-afiliacion"
+                  className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+                  aria-label="Descargar certificado"
                 >
-                  {t("contactUs")}
+                  <Download className="w-5 h-5" />
                 </Link>
               </div>
             </div>
           </div>
+
+          {/* Pie de página */}
+          <SyncFooter message="Los documentos aquí mostrados tienen carácter confidencial." />
         </div>
       </main>
 
       <Footer />
+
+      {/* FAB Móvil - Solicitar Abogado (fixed bottom) */}
+      <div className="lg:hidden fixed bottom-4 right-4 z-30">
+        <Link
+          href="/solicitar-abogado"
+          className="flex items-center gap-2 px-5 py-3.5 bg-sup-blue text-white font-semibold rounded-full shadow-lg hover:bg-sup-blue-dark active:scale-95 transition-all focus:outline-none focus-visible:ring-4 focus-visible:ring-sup-blue/50"
+        >
+          <Scale className="w-5 h-5" aria-hidden="true" />
+          <span className="text-sm">Solicitar Abogado</span>
+        </Link>
+      </div>
+
+      {/* Modal de visualización de PDF */}
+      <PDFViewer
+        isOpen={viewerOpen}
+        onClose={handleCloseViewer}
+        document={selectedDocument}
+      />
     </div>
   );
 }

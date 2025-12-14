@@ -4,186 +4,160 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
-import { Header, Footer } from "@/components/layout";
-import { Mail, Lock, Eye, EyeOff, ChevronRight, AlertCircle } from "lucide-react";
+import { Eye, EyeOff, ArrowRight } from "lucide-react";
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
   const [formData, setFormData] = useState({
     identifier: "",
     password: "",
-    remember: false,
   });
 
   const t = useTranslations("auth");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
     setIsLoading(true);
-
-    // Simulate login - redirect to panel on success
     await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    // For demo, redirect to panel
     window.location.href = "/panel";
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
-      <Header />
-
-      <main className="flex-1 flex items-center justify-center py-12 px-4">
-        <div className="w-full max-w-md">
-          {/* Login card */}
-          <div className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
-            {/* Header */}
-            <div className="bg-sup-blue px-6 py-8 text-center text-white">
-              <div className="mx-auto mb-4">
-                <Image
-                  src="/images/logo-sup.png"
-                  alt="SUP - Sindicato Unificado de Policía"
-                  width={160}
-                  height={53}
-                  className="h-16 w-auto mx-auto brightness-0 invert"
-                  priority
-                />
-              </div>
-              <h1 className="font-heading text-2xl font-bold mb-1">
-                {t("loginTitle")}
-              </h1>
-              <p className="text-blue-100 text-sm">
-                {t("loginSubtitle")}
-              </p>
-            </div>
-
-            {/* Form */}
-            <div className="p-6">
-              {error && (
-                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded flex items-center gap-2 text-red-700 text-sm">
-                  <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                  {error}
-                </div>
-              )}
-
-              <form onSubmit={handleSubmit} className="space-y-4">
-                {/* Email/TIP field */}
-                <div>
-                  <label htmlFor="identifier" className="block text-sm font-medium text-gray-700 mb-1">
-                    {t("emailOrTip")}
-                  </label>
-                  <div className="input-group">
-                    <Mail className="input-icon w-5 h-5" />
-                    <input
-                      id="identifier"
-                      type="text"
-                      placeholder={t("emailOrTipPlaceholder")}
-                      className="input-with-icon"
-                      value={formData.identifier}
-                      onChange={(e) => setFormData({ ...formData, identifier: e.target.value })}
-                      required
-                    />
-                  </div>
-                </div>
-
-                {/* Password field */}
-                <div>
-                  <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-                    {t("password")}
-                  </label>
-                  <div className="input-group">
-                    <Lock className="input-icon w-5 h-5" />
-                    <input
-                      id="password"
-                      type={showPassword ? "text" : "password"}
-                      placeholder={t("passwordPlaceholder")}
-                      className="input-with-icon pr-10"
-                      value={formData.password}
-                      onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                      required
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                      tabIndex={-1}
-                    >
-                      {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                    </button>
-                  </div>
-                </div>
-
-                {/* Remember & Forgot */}
-                <div className="flex items-center justify-between text-sm">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={formData.remember}
-                      onChange={(e) => setFormData({ ...formData, remember: e.target.checked })}
-                      className="w-4 h-4 rounded border-gray-300 text-sup-blue focus:ring-sup-blue"
-                    />
-                    <span className="text-gray-600">{t("rememberMe")}</span>
-                  </label>
-                  <Link href="/recuperar-clave" className="text-sup-blue hover:text-sup-blue-dark">
-                    {t("forgotPassword")}
-                  </Link>
-                </div>
-
-                {/* Submit */}
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="btn-primary w-full py-3"
-                >
-                  {isLoading ? (
-                    <span className="flex items-center justify-center gap-2">
-                      <svg className="animate-spin w-5 h-5" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                      </svg>
-                      {t("loggingIn")}
-                    </span>
-                  ) : (
-                    <span className="flex items-center justify-center gap-2">
-                      {t("login")}
-                      <ChevronRight className="w-5 h-5" />
-                    </span>
-                  )}
-                </button>
-              </form>
-
-              {/* Divider */}
-              <div className="relative my-6">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-200"></div>
-                </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="px-4 bg-white text-gray-500">{t("noAccess")}</span>
-                </div>
-              </div>
-
-              {/* Alternative actions */}
-              <div className="space-y-3">
-                <Link href="/solicitar-acceso" className="btn-secondary w-full justify-center">
-                  {t("requestAccess")}
-                </Link>
-                <Link href="/afiliarse" className="block text-center text-sm text-sup-blue hover:text-sup-blue-dark">
-                  {t("notAffiliate")}
-                </Link>
-              </div>
-            </div>
+    <div className="min-h-screen flex">
+      {/* Left side - Form */}
+      <div className="w-full lg:w-[40%] flex flex-col justify-center px-8 sm:px-16 lg:px-20 py-12 bg-white">
+        <div className="w-full max-w-md mx-auto">
+          {/* Logo - Centered */}
+          <div className="mb-8 flex justify-center">
+            <Image
+              src="/images/logo-sup.png"
+              alt="SUP - Sindicato Unificado de Policía"
+              width={180}
+              height={60}
+              className="h-16 w-auto"
+              priority
+            />
           </div>
 
-          {/* Security note */}
-          <p className="mt-6 text-center text-xs text-gray-500">
-            🔒 {t("secureConnection")}
-          </p>
-        </div>
-      </main>
+          {/* Title - Centered */}
+          <div className="mb-10 text-center">
+            <h1 className="font-heading text-4xl sm:text-5xl font-bold text-gray-900 leading-tight">
+              Acceso Afiliados
+            </h1>
+            <div className="w-16 h-1 bg-sup-blue mt-6 mx-auto"></div>
+          </div>
 
-      <Footer />
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Username field */}
+            <div>
+              <label htmlFor="identifier" className="sr-only">
+                Nombre de usuario o TIP
+              </label>
+              <input
+                id="identifier"
+                type="text"
+                placeholder="Nombre de usuario"
+                className="w-full px-0 py-4 text-base text-gray-900 placeholder:text-gray-500 bg-transparent border-0 border-b-2 border-gray-300 focus:border-sup-blue focus:ring-0 focus:outline-none transition-colors"
+                value={formData.identifier}
+                onChange={(e) => setFormData({ ...formData, identifier: e.target.value })}
+                required
+                aria-required="true"
+              />
+            </div>
+
+            {/* Password field */}
+            <div className="relative">
+              <label htmlFor="password" className="sr-only">
+                Contraseña
+              </label>
+              <input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                placeholder="Contraseña"
+                className="w-full px-0 py-4 pr-12 text-base text-gray-900 placeholder:text-gray-500 bg-transparent border-0 border-b-2 border-gray-300 focus:border-sup-blue focus:ring-0 focus:outline-none transition-colors"
+                value={formData.password}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                required
+                aria-required="true"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-0 top-1/2 -translate-y-1/2 p-2 text-gray-600 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-sup-blue rounded"
+                tabIndex={-1}
+                aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+              >
+                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+              </button>
+            </div>
+
+            {/* Submit button */}
+            <div className="pt-4">
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="group w-full sm:w-auto inline-flex items-center justify-center gap-3 px-10 py-4 bg-sup-blue text-white font-semibold hover:bg-sup-blue-dark focus:outline-none focus:ring-2 focus:ring-sup-blue focus:ring-offset-2 disabled:opacity-70 disabled:cursor-not-allowed transition-all"
+              >
+                {isLoading ? (
+                  <>
+                    <svg className="animate-spin w-5 h-5" viewBox="0 0 24 24" aria-hidden="true">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    </svg>
+                    <span>INICIANDO SESIÓN</span>
+                  </>
+                ) : (
+                  <>
+                    <ArrowRight className="w-5 h-5" aria-hidden="true" />
+                    <span>INICIAR SESIÓN</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </form>
+
+          {/* Links */}
+          <div className="mt-8">
+            <Link
+              href="/recuperar-clave"
+              className="text-sup-blue hover:text-sup-blue-dark text-sm font-semibold underline focus:outline-none focus:ring-2 focus:ring-sup-blue focus:ring-offset-2 rounded transition-colors"
+            >
+              Recuperar contraseña
+            </Link>
+          </div>
+
+          {/* Footer info */}
+          <div className="mt-16 pt-8 border-t border-gray-300">
+            <p className="text-sm text-gray-700">
+              ¿No eres afiliado?{" "}
+              <Link href="/afiliarse" className="text-sup-blue hover:text-sup-blue-dark font-semibold underline focus:outline-none focus:ring-2 focus:ring-sup-blue rounded">
+                Infórmate aquí
+              </Link>
+            </p>
+            <p className="text-sm text-gray-600 mt-4">
+              © {new Date().getFullYear()} Sindicato Unificado de Policía
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Right side - Image */}
+      <div className="hidden lg:block lg:w-[60%] relative">
+        {/* Background image */}
+        <Image
+          src="/images/area-privada.jpg"
+          alt="Policía Nacional de España"
+          fill
+          className="object-cover"
+          priority
+        />
+        {/* Dark overlay para mejor contraste */}
+        <div className="absolute inset-0 bg-gray-900/60"></div>
+
+
+      </div>
     </div>
   );
 }
