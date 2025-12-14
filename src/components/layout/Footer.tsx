@@ -22,7 +22,7 @@ export function Footer() {
                 alt="SUP - Sindicato Unificado de Policía"
                 width={150}
                 height={50}
-                className="h-12 w-auto brightness-0 invert"
+                className="h-12 w-auto"
               />
             </div>
             <p className="text-sm text-gray-300 leading-relaxed">
