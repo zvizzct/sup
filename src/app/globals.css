@@ -1,0 +1,88 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-gray-50 text-gray-800 antialiased;
+  }
+
+  ::selection {
+    @apply bg-sup-blue/20 text-sup-blue;
+  }
+}
+
+@layer components {
+  /* Buttons */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-semibold rounded transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-primary {
+    @apply btn bg-sup-blue text-white hover:bg-sup-blue-dark focus:ring-sup-blue;
+  }
+
+  .btn-secondary {
+    @apply btn bg-white text-sup-blue border-2 border-sup-blue hover:bg-sup-blue-pale focus:ring-sup-blue;
+  }
+
+  .btn-yellow {
+    @apply btn bg-sup-yellow text-white hover:bg-sup-yellow-light focus:ring-sup-yellow;
+  }
+
+  /* Inputs */
+  .input {
+    @apply w-full px-4 py-2.5 bg-white border border-gray-300 rounded text-gray-800 placeholder:text-gray-400 transition-colors duration-200 focus:outline-none focus:border-sup-blue focus:ring-1 focus:ring-sup-blue;
+  }
+
+  .input-group {
+    @apply relative;
+  }
+
+  .input-icon {
+    @apply absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none;
+  }
+
+  .input-group:focus-within .input-icon {
+    @apply text-sup-blue;
+  }
+
+  .input-with-icon {
+    @apply input pl-10;
+  }
+
+  /* Cards */
+  .card {
+    @apply bg-white border border-gray-200 rounded-lg shadow-card;
+  }
+
+  /* Links */
+  .link {
+    @apply text-sup-blue hover:text-sup-blue-dark underline-offset-2 hover:underline transition-colors;
+  }
+
+  /* Badge */
+  .badge {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 text-xs font-semibold rounded;
+  }
+
+  .badge-blue {
+    @apply badge bg-sup-blue-pale text-sup-blue;
+  }
+
+  .badge-yellow {
+    @apply badge bg-amber-100 text-amber-700;
+  }
+
+  .badge-red {
+    @apply badge bg-red-100 text-red-700;
+  }
+
+  .badge-green {
+    @apply badge bg-green-100 text-green-700;
+  }
+}
