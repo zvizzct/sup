@@ -115,19 +115,18 @@ export default function AffiliateDetailPage({
               variant="secondary"
               icon={<Edit2 className="w-4 h-4" aria-hidden="true" />}
             >
-              Editar
+              <span className="hidden sm:inline">Editar</span>
             </ActionButton>
-            <button className="flex items-center gap-2 px-4 py-2 bg-white text-red-700 text-sm font-semibold border border-red-300 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors">
+            <button className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-white text-red-700 text-sm font-semibold border border-red-300 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors">
               <UserX className="w-4 h-4" aria-hidden="true" />
-              Desactivar
+              <span className="hidden sm:inline">Desactivar</span>
             </button>
           </>
         }
       />
 
-      {/* Content */}
-      <div className="p-6">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="p-4 sm:p-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
           {/* Left column - 2/3 width */}
           <div className="lg:col-span-2 space-y-4">
             {/* Datos Personales */}

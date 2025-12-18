@@ -1,31 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import {
-  FileText,
-  Eye,
-  Download,
-  Edit2,
-  Trash2,
-  Plus,
-  Upload,
-  X,
-  Search,
-} from "lucide-react";
+import { FileText, Eye, Download, Edit2, Trash2, Plus, Upload, X, Search, ArrowRight } from "lucide-react";
 import { ActionBar } from "@/components/admin/ActionBar";
 import { StatusBadge, CategoryBadge, StatusType } from "@/components/shared/Badge";
 import { PageFooter } from "@/components/admin/PageFooter";
 import { ResultsCount } from "@/components/shared/ResultsCount";
 import { EmptyState } from "@/components/shared/EmptyState";
-import { formatDate } from "@/lib/shared/format";
-
-type DocumentStatus = "Pendiente" | "Vigente" | "Archivado";
-type DocumentCategory =
-  | "Exp. Disciplinario"
-  | "Recursos CA"
-  | "Exp. Administrativos"
-  | "Actos Servicio"
-  | "Asuntos Personales";
+import { formatDate, type EstadoDocumento, type CategoriaDocumentoAdmin } from "@/lib/shared";
 
 interface Document {
   id: string;
@@ -33,9 +15,9 @@ interface Document {
   name: string;
   afiliadoName: string;
   afiliadoTip: string;
-  category: DocumentCategory;
+  category: CategoriaDocumentoAdmin;
   date: string;
-  status: DocumentStatus;
+  status: EstadoDocumento;
   notes?: string;
 }
 
@@ -67,23 +49,16 @@ export default function DocumentosPage() {
     afiliado: "",
     category: "",
     documentName: "",
-    status: "Pendiente" as DocumentStatus,
+    status: "Pendiente" as EstadoDocumento,
     date: "",
     notes: "",
   });
 
   const filteredDocuments = mockDocuments.filter((doc) => {
-    const matchesSearch =
-      doc.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      doc.ref.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesAfiliado =
-      !selectedAfiliado ||
-      doc.afiliadoName.toLowerCase().includes(selectedAfiliado.toLowerCase());
-    const matchesCategory =
-      selectedCategory === "Todos" || doc.category === selectedCategory;
-    const matchesStatus =
-      selectedStatus === "Todos" || doc.status === selectedStatus;
-
+    const matchesSearch = doc.name.toLowerCase().includes(searchTerm.toLowerCase()) || doc.ref.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesAfiliado = !selectedAfiliado || doc.afiliadoName.toLowerCase().includes(selectedAfiliado.toLowerCase());
+    const matchesCategory = selectedCategory === "Todos" || doc.category === selectedCategory;
+    const matchesStatus = selectedStatus === "Todos" || doc.status === selectedStatus;
     return matchesSearch && matchesAfiliado && matchesCategory && matchesStatus;
   });
 
@@ -102,7 +77,6 @@ export default function DocumentosPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Form submitted:", formData, uploadedFile);
     setIsModalOpen(false);
     resetForm();
   };
@@ -118,43 +92,22 @@ export default function DocumentosPage() {
         title="Gestión de Documentos"
         subtitle="Gestión de documentos del sindicato"
         actions={
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-gray-800 text-white text-sm font-semibold hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 transition-colors"
-          >
+          <button onClick={() => setIsModalOpen(true)} className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-gray-800 text-white text-sm font-semibold hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 transition-colors">
             <Plus className="w-4 h-4" aria-hidden="true" />
-            Subir Documento
+            <span className="hidden sm:inline">Subir Documento</span>
           </button>
         }
       />
 
-      {/* Content */}
-      <div className="p-6">
-        {/* Filters */}
-        <div className="bg-white border border-gray-300 p-4 mb-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="p-4 sm:p-6">
+        <div className="bg-white border border-gray-300 p-3 sm:p-4 mb-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" aria-hidden="true" />
-              <input
-                type="text"
-                placeholder="Buscar por nombre o referencia..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 text-sm text-gray-900 bg-white border border-gray-300 focus:border-gray-500 focus:ring-0 focus:outline-none transition-colors"
-              />
+              <input type="text" placeholder="Buscar..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 text-sm text-gray-900 bg-white border border-gray-300 focus:border-gray-500 focus:ring-0 focus:outline-none transition-colors" />
             </div>
-            <input
-              type="text"
-              placeholder="Buscar afiliado..."
-              value={selectedAfiliado}
-              onChange={(e) => setSelectedAfiliado(e.target.value)}
-              className="w-full px-3 py-2 text-sm text-gray-900 bg-white border border-gray-300 focus:border-gray-500 focus:ring-0 focus:outline-none transition-colors"
-            />
-            <select
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="w-full px-3 py-2 text-sm text-gray-900 bg-white border border-gray-300 focus:border-gray-500 focus:ring-0 focus:outline-none transition-colors"
-            >
+            <input type="text" placeholder="Buscar afiliado..." value={selectedAfiliado} onChange={(e) => setSelectedAfiliado(e.target.value)} className="w-full px-3 py-2 text-sm text-gray-900 bg-white border border-gray-300 focus:border-gray-500 focus:ring-0 focus:outline-none transition-colors" />
+            <select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)} className="w-full px-3 py-2 text-sm text-gray-900 bg-white border border-gray-300 focus:border-gray-500 focus:ring-0 focus:outline-none transition-colors">
               <option value="Todos">Categoría: Todas</option>
               <option value="Exp. Disciplinario">Exp. Disciplinario</option>
               <option value="Recursos CA">Recursos CA</option>
@@ -162,11 +115,7 @@ export default function DocumentosPage() {
               <option value="Actos Servicio">Actos Servicio</option>
               <option value="Asuntos Personales">Asuntos Personales</option>
             </select>
-            <select
-              value={selectedStatus}
-              onChange={(e) => setSelectedStatus(e.target.value)}
-              className="w-full px-3 py-2 text-sm text-gray-900 bg-white border border-gray-300 focus:border-gray-500 focus:ring-0 focus:outline-none transition-colors"
-            >
+            <select value={selectedStatus} onChange={(e) => setSelectedStatus(e.target.value)} className="w-full px-3 py-2 text-sm text-gray-900 bg-white border border-gray-300 focus:border-gray-500 focus:ring-0 focus:outline-none transition-colors">
               <option value="Todos">Estado: Todos</option>
               <option value="Pendiente">Pendiente</option>
               <option value="Vigente">Vigente</option>
@@ -175,19 +124,12 @@ export default function DocumentosPage() {
           </div>
         </div>
 
-        {/* Results Count */}
         <div className="mb-2">
-          <ResultsCount
-            current={filteredDocuments.length}
-            total={TOTAL_DOCUMENTS}
-            label="documentos"
-          />
+          <ResultsCount current={filteredDocuments.length} total={TOTAL_DOCUMENTS} label="documentos" />
         </div>
 
-        {/* Documents Table */}
         <div className="bg-white border border-gray-300">
-          {/* Table Header */}
-          <div className="grid grid-cols-12 gap-2 px-4 py-2 bg-gray-100 text-xs font-bold text-gray-700 uppercase tracking-wide border-b border-gray-300">
+          <div className="hidden lg:grid grid-cols-12 gap-2 px-4 py-2 bg-gray-100 text-xs font-bold text-gray-700 uppercase tracking-wide border-b border-gray-300">
             <div className="col-span-1">Ref.</div>
             <div className="col-span-3">Documento</div>
             <div className="col-span-2">Afiliado</div>
@@ -197,21 +139,13 @@ export default function DocumentosPage() {
             <div className="col-span-2 text-right">Acciones</div>
           </div>
 
-          {/* Table Body */}
-          <div className="divide-y divide-gray-200">
+          <div className="hidden lg:block divide-y divide-gray-200">
             {filteredDocuments.length === 0 ? (
               <EmptyState message="No se encontraron documentos" />
             ) : (
               filteredDocuments.map((doc) => (
-                <div
-                  key={doc.id}
-                  className="grid grid-cols-12 gap-2 px-4 py-3 items-center hover:bg-gray-50 transition-colors"
-                >
-                  <div className="col-span-1">
-                    <span className="text-sm font-mono font-semibold text-gray-900">
-                      {doc.ref.split("-").pop()}
-                    </span>
-                  </div>
+                <div key={doc.id} className="grid grid-cols-12 gap-2 px-4 py-3 items-center hover:bg-gray-50 transition-colors">
+                  <div className="col-span-1"><span className="text-sm font-mono font-semibold text-gray-900">{doc.ref.split("-").pop()}</span></div>
                   <div className="col-span-3 flex items-center gap-2 min-w-0">
                     <FileText className="w-4 h-4 text-red-700 flex-shrink-0" aria-hidden="true" />
                     <span className="text-sm text-gray-900 truncate">{doc.name}</span>
@@ -220,88 +154,80 @@ export default function DocumentosPage() {
                     <p className="text-sm text-gray-900 truncate">{doc.afiliadoName}</p>
                     <p className="text-xs text-gray-500">{doc.afiliadoTip}</p>
                   </div>
-                  <div className="col-span-2">
-                    <CategoryBadge category={doc.category} />
-                  </div>
-                  <div className="col-span-1">
-                    <span className="text-sm text-gray-700 tabular-nums">{formatDate(doc.date)}</span>
-                  </div>
-                  <div className="col-span-1">
-                    <StatusBadge status={doc.status as StatusType} />
-                  </div>
+                  <div className="col-span-2"><CategoryBadge category={doc.category} /></div>
+                  <div className="col-span-1"><span className="text-sm text-gray-700 tabular-nums">{formatDate(doc.date)}</span></div>
+                  <div className="col-span-1"><StatusBadge status={doc.status as StatusType} /></div>
                   <div className="col-span-2 flex items-center justify-end gap-1">
-                    <button className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500" title="Ver documento">
-                      <Eye className="w-4 h-4" />
-                    </button>
-                    <button className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500" title="Descargar">
-                      <Download className="w-4 h-4" />
-                    </button>
-                    <button className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500" title="Editar">
-                      <Edit2 className="w-4 h-4" />
-                    </button>
-                    <button className="p-2 text-gray-600 hover:text-red-700 hover:bg-red-50 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500" title="Eliminar">
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                    <button className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500" title="Ver"><Eye className="w-4 h-4" /></button>
+                    <button className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500" title="Descargar"><Download className="w-4 h-4" /></button>
+                    <button className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500" title="Editar"><Edit2 className="w-4 h-4" /></button>
+                    <button className="p-2 text-gray-600 hover:text-red-700 hover:bg-red-50 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500" title="Eliminar"><Trash2 className="w-4 h-4" /></button>
                   </div>
                 </div>
               ))
             )}
           </div>
 
-          {/* Table Footer */}
+          <div className="lg:hidden divide-y divide-gray-200">
+            {filteredDocuments.length === 0 ? (
+              <EmptyState message="No se encontraron documentos" />
+            ) : (
+              filteredDocuments.map((doc) => (
+                <div key={doc.id} className="px-4 py-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-xs font-mono font-bold text-gray-500">#{doc.ref.split("-").pop()}</span>
+                        <StatusBadge status={doc.status as StatusType} />
+                      </div>
+                      <div className="flex items-center gap-2 mb-1">
+                        <FileText className="w-4 h-4 text-red-700 flex-shrink-0" aria-hidden="true" />
+                        <p className="text-sm font-medium text-gray-900 truncate">{doc.name}</p>
+                      </div>
+                      <p className="text-xs text-gray-600">{doc.afiliadoName} · {doc.afiliadoTip}</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <CategoryBadge category={doc.category} />
+                        <span className="text-xs text-gray-500">{formatDate(doc.date)}</span>
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <button className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-200 transition-colors" title="Ver"><Eye className="w-4 h-4" /></button>
+                      <button className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-200 transition-colors" title="Descargar"><Download className="w-4 h-4" /></button>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+
           <div className="px-4 py-2 bg-gray-100 border-t border-gray-300">
-            <span className="text-xs text-gray-600 font-medium">
-              Total: {filteredDocuments.length} documentos
-            </span>
+            <span className="text-xs text-gray-600 font-medium">Total: {filteredDocuments.length} documentos</span>
           </div>
         </div>
 
         <PageFooter />
       </div>
 
-      {/* Upload Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 overflow-hidden" role="dialog" aria-modal="true">
           <div className="fixed inset-0 bg-gray-900/80 transition-opacity" onClick={() => { setIsModalOpen(false); resetForm(); }} aria-hidden="true" />
           <div className="fixed inset-4 sm:inset-8 lg:inset-y-12 lg:inset-x-auto lg:left-1/2 lg:-translate-x-1/2 lg:w-full lg:max-w-2xl flex flex-col bg-white shadow-2xl">
-            {/* Modal Header */}
             <div className="flex items-center justify-between px-4 py-3 bg-gray-100 border-b border-gray-300">
-              <h2 className="text-sm font-bold text-gray-900 uppercase tracking-wide">
-                Subir Documento
-              </h2>
-              <button
-                onClick={() => { setIsModalOpen(false); resetForm(); }}
-                className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500"
-                aria-label="Cerrar"
-              >
-                <X className="w-5 h-5" />
-              </button>
+              <h2 className="text-sm font-bold text-gray-900 uppercase tracking-wide">Subir Documento</h2>
+              <button onClick={() => { setIsModalOpen(false); resetForm(); }} className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500" aria-label="Cerrar"><X className="w-5 h-5" /></button>
             </div>
 
-            {/* Modal Body */}
             <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-4">
               <div className="space-y-4">
                 <div>
                   <label className="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1">Afiliado</label>
-                  <input
-                    type="text"
-                    placeholder="Buscar afiliado por nombre o TIP..."
-                    value={formData.afiliado}
-                    onChange={(e) => setFormData({ ...formData, afiliado: e.target.value })}
-                    className="w-full px-3 py-2 text-sm text-gray-900 bg-white border border-gray-300 focus:border-gray-500 focus:ring-0 focus:outline-none transition-colors"
-                    required
-                  />
+                  <input type="text" placeholder="Buscar afiliado por nombre o TIP..." value={formData.afiliado} onChange={(e) => setFormData({ ...formData, afiliado: e.target.value })} className="w-full px-3 py-2 text-sm text-gray-900 bg-white border border-gray-300 focus:border-gray-500 focus:ring-0 focus:outline-none transition-colors" required />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1">Categoría</label>
-                    <select
-                      value={formData.category}
-                      onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                      className="w-full px-3 py-2 text-sm text-gray-900 bg-white border border-gray-300 focus:border-gray-500 focus:ring-0 focus:outline-none transition-colors"
-                      required
-                    >
+                    <select value={formData.category} onChange={(e) => setFormData({ ...formData, category: e.target.value })} className="w-full px-3 py-2 text-sm text-gray-900 bg-white border border-gray-300 focus:border-gray-500 focus:ring-0 focus:outline-none transition-colors" required>
                       <option value="">Seleccionar...</option>
                       <option value="Exp. Disciplinario">Exp. Disciplinario</option>
                       <option value="Recursos CA">Recursos CA</option>
@@ -312,12 +238,7 @@ export default function DocumentosPage() {
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1">Estado</label>
-                    <select
-                      value={formData.status}
-                      onChange={(e) => setFormData({ ...formData, status: e.target.value as DocumentStatus })}
-                      className="w-full px-3 py-2 text-sm text-gray-900 bg-white border border-gray-300 focus:border-gray-500 focus:ring-0 focus:outline-none transition-colors"
-                      required
-                    >
+                    <select value={formData.status} onChange={(e) => setFormData({ ...formData, status: e.target.value as EstadoDocumento })} className="w-full px-3 py-2 text-sm text-gray-900 bg-white border border-gray-300 focus:border-gray-500 focus:ring-0 focus:outline-none transition-colors" required>
                       <option value="Pendiente">Pendiente</option>
                       <option value="Vigente">Vigente</option>
                       <option value="Archivado">Archivado</option>
@@ -327,44 +248,18 @@ export default function DocumentosPage() {
 
                 <div>
                   <label className="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1">Nombre del documento</label>
-                  <input
-                    type="text"
-                    placeholder="Ej: Expediente disciplinario - Falta grave"
-                    value={formData.documentName}
-                    onChange={(e) => setFormData({ ...formData, documentName: e.target.value })}
-                    className="w-full px-3 py-2 text-sm text-gray-900 bg-white border border-gray-300 focus:border-gray-500 focus:ring-0 focus:outline-none transition-colors"
-                    required
-                  />
+                  <input type="text" placeholder="Ej: Expediente disciplinario - Falta grave" value={formData.documentName} onChange={(e) => setFormData({ ...formData, documentName: e.target.value })} className="w-full px-3 py-2 text-sm text-gray-900 bg-white border border-gray-300 focus:border-gray-500 focus:ring-0 focus:outline-none transition-colors" required />
                 </div>
 
                 <div>
                   <label className="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1">Fecha del documento</label>
-                  <input
-                    type="date"
-                    value={formData.date}
-                    onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                    className="w-full px-3 py-2 text-sm text-gray-900 bg-white border border-gray-300 focus:border-gray-500 focus:ring-0 focus:outline-none transition-colors"
-                    required
-                  />
+                  <input type="date" value={formData.date} onChange={(e) => setFormData({ ...formData, date: e.target.value })} className="w-full px-3 py-2 text-sm text-gray-900 bg-white border border-gray-300 focus:border-gray-500 focus:ring-0 focus:outline-none transition-colors" required />
                 </div>
 
                 <div>
                   <label className="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1">Archivo PDF</label>
-                  <div
-                    onDragEnter={handleDragEnter}
-                    onDragOver={handleDragOver}
-                    onDragLeave={handleDragLeave}
-                    onDrop={handleDrop}
-                    className={`relative border-2 border-dashed p-6 text-center transition-colors ${
-                      isDragging ? "border-gray-500 bg-gray-100" : "border-gray-300 bg-gray-50 hover:border-gray-400"
-                    }`}
-                  >
-                    <input
-                      type="file"
-                      accept="application/pdf"
-                      onChange={handleFileInput}
-                      className="absolute inset-0 cursor-pointer opacity-0"
-                    />
+                  <div onDragEnter={handleDragEnter} onDragOver={handleDragOver} onDragLeave={handleDragLeave} onDrop={handleDrop} className={`relative border-2 border-dashed p-6 text-center transition-colors ${isDragging ? "border-gray-500 bg-gray-100" : "border-gray-300 bg-gray-50 hover:border-gray-400"}`}>
+                    <input type="file" accept="application/pdf" onChange={handleFileInput} className="absolute inset-0 cursor-pointer opacity-0" />
                     <Upload className="mx-auto mb-2 text-gray-400 w-8 h-8" aria-hidden="true" />
                     {uploadedFile ? (
                       <div className="text-sm">
@@ -383,33 +278,14 @@ export default function DocumentosPage() {
 
                 <div>
                   <label className="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1">Notas internas (opcional)</label>
-                  <textarea
-                    placeholder="Escribe notas o comentarios..."
-                    value={formData.notes}
-                    onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                    rows={3}
-                    className="w-full px-3 py-2 text-sm text-gray-900 bg-white border border-gray-300 focus:border-gray-500 focus:ring-0 focus:outline-none transition-colors resize-none"
-                  />
+                  <textarea placeholder="Escribe notas o comentarios..." value={formData.notes} onChange={(e) => setFormData({ ...formData, notes: e.target.value })} rows={3} className="w-full px-3 py-2 text-sm text-gray-900 bg-white border border-gray-300 focus:border-gray-500 focus:ring-0 focus:outline-none transition-colors resize-none" />
                 </div>
               </div>
             </form>
 
-            {/* Modal Footer */}
-            <div className="px-4 py-3 bg-gray-100 border-t border-gray-300 flex items-center justify-end gap-3">
-              <button
-                type="button"
-                onClick={() => { setIsModalOpen(false); resetForm(); }}
-                className="px-4 py-2 bg-white text-gray-800 text-sm font-semibold border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-colors"
-              >
-                Cancelar
-              </button>
-              <button
-                type="submit"
-                onClick={handleSubmit}
-                className="px-4 py-2 bg-gray-800 text-white text-sm font-semibold hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 transition-colors"
-              >
-                Subir Documento
-              </button>
+            <div className="px-4 py-3 bg-gray-100 border-t border-gray-300 flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3">
+              <button type="button" onClick={() => { setIsModalOpen(false); resetForm(); }} className="px-4 py-2 bg-white text-gray-800 text-sm font-semibold border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-colors">Cancelar</button>
+              <button type="submit" onClick={handleSubmit} className="px-4 py-2 bg-gray-800 text-white text-sm font-semibold hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 transition-colors">Subir Documento</button>
             </div>
           </div>
         </div>

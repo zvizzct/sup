@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Eye, EyeOff, ArrowRight } from "lucide-react";
 
@@ -15,12 +16,13 @@ export default function LoginPage() {
   });
 
   const t = useTranslations("auth");
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     await new Promise((resolve) => setTimeout(resolve, 1000));
-    window.location.href = "/panel";
+    router.push("/panel");
   };
 
   return (

@@ -1,25 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import {
-  Clock,
-  Users,
-  Paperclip,
-  Eye,
-  Send,
-  Plus,
-} from "lucide-react";
+import { Clock, Users, Paperclip, Eye, Send, Plus } from "lucide-react";
 import { ActionBar } from "@/components/admin/ActionBar";
 import { CommunicationBadge } from "@/components/shared/Badge";
 import { PageFooter } from "@/components/admin/PageFooter";
 import { ResultsCount } from "@/components/shared/ResultsCount";
+import type { TipoComunicacion } from "@/lib/shared";
 
-type CommunicationType = "URGENTE" | "INFORMATIVO" | "CONVOCATORIA";
-type FilterType = "all" | CommunicationType;
+type FilterType = "all" | TipoComunicacion;
 
 interface Communication {
   id: number;
-  type: CommunicationType;
+  type: TipoComunicacion;
   subject: string;
   content: string;
   sentDate: string;
@@ -40,7 +33,8 @@ const TOTAL_COMMUNICATIONS = 10;
 
 export default function ComunicacionesPage() {
   const [activeFilter, setActiveFilter] = useState<FilterType>("all");
-  const [formType, setFormType] = useState<CommunicationType>("INFORMATIVO");
+  const [showForm, setShowForm] = useState(false);
+  const [formType, setFormType] = useState<TipoComunicacion>("INFORMATIVO");
   const [recipients, setRecipients] = useState("all");
   const [subject, setSubject] = useState("");
   const [content, setContent] = useState("");
@@ -49,14 +43,9 @@ export default function ComunicacionesPage() {
   const [scheduledDate, setScheduledDate] = useState("");
   const [scheduledTime, setScheduledTime] = useState("");
 
-  const filteredCommunications = activeFilter === "all"
-    ? mockCommunications
-    : mockCommunications.filter((comm) => comm.type === activeFilter);
+  const filteredCommunications = activeFilter === "all" ? mockCommunications : mockCommunications.filter((comm) => comm.type === activeFilter);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log({ formType, recipients, subject, content, notifyEmail, sendTime, scheduledDate, scheduledTime });
-  };
+  const handleSubmit = (e: React.FormEvent) => { e.preventDefault(); };
 
   const filterTabs: { key: FilterType; label: string }[] = [
     { key: "all", label: "Todas" },
@@ -71,257 +60,133 @@ export default function ComunicacionesPage() {
         title="Comunicaciones"
         subtitle="Gestión de comunicaciones a los afiliados"
         actions={
-          <button className="flex items-center gap-2 px-4 py-2 bg-gray-800 text-white text-sm font-semibold hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 transition-colors">
+          <button onClick={() => setShowForm(!showForm)} className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-gray-800 text-white text-sm font-semibold hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 transition-colors lg:hidden">
             <Plus className="w-4 h-4" aria-hidden="true" />
-            Nueva Comunicación
+            <span className="hidden sm:inline">Nueva</span>
           </button>
         }
       />
 
-      {/* Content */}
-      <div className="p-6">
+      <div className="p-4 sm:p-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          {/* Left Column - Communications List (2/3) */}
           <div className="lg:col-span-2 space-y-4">
-            {/* Filter Tabs */}
-            <div className="bg-white border border-gray-300 flex">
-              {filterTabs.map((tab) => (
-                <button
-                  key={tab.key}
-                  onClick={() => setActiveFilter(tab.key)}
-                  className={`flex-1 px-4 py-3 text-sm font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-inset focus:ring-gray-500 ${
-                    activeFilter === tab.key
-                      ? "bg-gray-800 text-white"
-                      : "text-gray-700 hover:bg-gray-100"
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
+            <div className="bg-white border border-gray-300 overflow-x-auto">
+              <div className="flex min-w-max">
+                {filterTabs.map((tab) => (
+                  <button key={tab.key} onClick={() => setActiveFilter(tab.key)} className={`flex-1 px-3 sm:px-4 py-3 text-sm font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-inset focus:ring-gray-500 whitespace-nowrap ${activeFilter === tab.key ? "bg-gray-800 text-white" : "text-gray-700 hover:bg-gray-100"}`}>
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
             </div>
 
-            {/* Results Count */}
-            <div>
-              <ResultsCount
-                current={filteredCommunications.length}
-                total={TOTAL_COMMUNICATIONS}
-                label="comunicaciones"
-              />
-            </div>
+            <div><ResultsCount current={filteredCommunications.length} total={TOTAL_COMMUNICATIONS} label="comunicaciones" /></div>
 
-            {/* Communications List */}
-            <div className="space-y-1">
+            <div className="space-y-2">
               {filteredCommunications.map((comm) => (
-                <div
-                  key={comm.id}
-                  className="bg-white border border-gray-300 p-4 hover:shadow-md transition-shadow"
-                >
-                  {/* Header */}
-                  <div className="flex items-start justify-between mb-2">
+                <div key={comm.id} className="bg-white border border-gray-300 p-3 sm:p-4 hover:shadow-md transition-shadow">
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-2">
                     <CommunicationBadge type={comm.type} />
                     <div className="flex items-center gap-1 text-xs text-gray-500">
                       <Clock className="w-3 h-3" aria-hidden="true" />
                       <span>{comm.sentDate} - {comm.sentTime}</span>
                     </div>
                   </div>
-
-                  {/* Subject */}
-                  <h3 className="text-sm font-medium text-gray-900 mb-2">
-                    {comm.subject}
-                  </h3>
-
-                  {/* Content Preview */}
-                  <p className="text-sm text-gray-600 line-clamp-2 mb-3">
-                    {comm.content}
-                  </p>
-
-                  {/* Footer */}
-                  <div className="flex items-center justify-between pt-3 border-t border-gray-200">
+                  <h3 className="text-sm font-medium text-gray-900 mb-2">{comm.subject}</h3>
+                  <p className="text-sm text-gray-600 line-clamp-2 mb-3">{comm.content}</p>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-3 border-t border-gray-200">
                     <div className="flex items-center gap-2 text-xs text-gray-600">
                       <Users className="w-4 h-4" aria-hidden="true" />
                       <span>Enviado a {comm.recipientCount.toLocaleString("es-ES")} afiliados</span>
                     </div>
-                    <button className="text-sm text-gray-700 hover:text-gray-900 font-medium underline focus:outline-none focus:ring-2 focus:ring-gray-500">
-                      Ver detalle
-                    </button>
+                    <button className="text-sm text-gray-700 hover:text-gray-900 font-medium underline focus:outline-none focus:ring-2 focus:ring-gray-500">Ver detalle</button>
                   </div>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Right Column - New Communication Form (1/3) */}
-          <div className="lg:col-span-1">
-            <div className="bg-white border border-gray-300 sticky top-6">
-              <div className="px-4 py-3 border-b border-gray-300">
-                <h2 className="text-sm font-bold text-gray-900 uppercase tracking-wide">
-                  Nueva Comunicación
-                </h2>
+          <div className={`lg:col-span-1 ${showForm ? "block" : "hidden lg:block"}`}>
+            <div className="bg-white border border-gray-300 lg:sticky lg:top-6">
+              <div className="px-4 py-3 border-b border-gray-300 flex items-center justify-between">
+                <h2 className="text-sm font-bold text-gray-900 uppercase tracking-wide">Nueva Comunicación</h2>
+                <button onClick={() => setShowForm(false)} className="lg:hidden text-sm text-gray-600 hover:text-gray-900">Cerrar</button>
               </div>
 
               <form onSubmit={handleSubmit} className="p-4 space-y-4">
-                {/* Type */}
                 <div>
-                  <label htmlFor="type" className="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1">
-                    Tipo
-                  </label>
-                  <select
-                    id="type"
-                    value={formType}
-                    onChange={(e) => setFormType(e.target.value as CommunicationType)}
-                    className="w-full px-3 py-2 text-sm text-gray-900 bg-white border border-gray-300 focus:border-gray-500 focus:ring-0 focus:outline-none transition-colors"
-                  >
+                  <label htmlFor="type" className="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1">Tipo</label>
+                  <select id="type" value={formType} onChange={(e) => setFormType(e.target.value as TipoComunicacion)} className="w-full px-3 py-2 text-sm text-gray-900 bg-white border border-gray-300 focus:border-gray-500 focus:ring-0 focus:outline-none transition-colors">
                     <option value="INFORMATIVO">Informativo</option>
                     <option value="URGENTE">Urgente</option>
                     <option value="CONVOCATORIA">Convocatoria</option>
                   </select>
                 </div>
 
-                {/* Recipients */}
                 <div>
-                  <label htmlFor="recipients" className="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1">
-                    Destinatarios
-                  </label>
-                  <select
-                    id="recipients"
-                    value={recipients}
-                    onChange={(e) => setRecipients(e.target.value)}
-                    className="w-full px-3 py-2 text-sm text-gray-900 bg-white border border-gray-300 focus:border-gray-500 focus:ring-0 focus:outline-none transition-colors"
-                  >
+                  <label htmlFor="recipients" className="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1">Destinatarios</label>
+                  <select id="recipients" value={recipients} onChange={(e) => setRecipients(e.target.value)} className="w-full px-3 py-2 text-sm text-gray-900 bg-white border border-gray-300 focus:border-gray-500 focus:ring-0 focus:outline-none transition-colors">
                     <option value="all">Todos los afiliados</option>
                     <option value="destination">Por destino</option>
                     <option value="individual">Individual</option>
                   </select>
                 </div>
 
-                {/* Subject */}
                 <div>
-                  <label htmlFor="subject" className="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1">
-                    Asunto
-                  </label>
-                  <input
-                    type="text"
-                    id="subject"
-                    value={subject}
-                    onChange={(e) => setSubject(e.target.value)}
-                    placeholder="Escribe el asunto de la comunicación..."
-                    className="w-full px-3 py-2 text-sm text-gray-900 bg-white border border-gray-300 focus:border-gray-500 focus:ring-0 focus:outline-none transition-colors"
-                  />
+                  <label htmlFor="subject" className="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1">Asunto</label>
+                  <input type="text" id="subject" value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="Escribe el asunto..." className="w-full px-3 py-2 text-sm text-gray-900 bg-white border border-gray-300 focus:border-gray-500 focus:ring-0 focus:outline-none transition-colors" />
                 </div>
 
-                {/* Content */}
                 <div>
-                  <label htmlFor="content" className="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1">
-                    Contenido
-                  </label>
-                  <textarea
-                    id="content"
-                    value={content}
-                    onChange={(e) => setContent(e.target.value)}
-                    placeholder="Escribe el contenido..."
-                    rows={5}
-                    className="w-full px-3 py-2 text-sm text-gray-900 bg-white border border-gray-300 focus:border-gray-500 focus:ring-0 focus:outline-none transition-colors resize-none"
-                  />
+                  <label htmlFor="content" className="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1">Contenido</label>
+                  <textarea id="content" value={content} onChange={(e) => setContent(e.target.value)} placeholder="Escribe el contenido..." rows={4} className="w-full px-3 py-2 text-sm text-gray-900 bg-white border border-gray-300 focus:border-gray-500 focus:ring-0 focus:outline-none transition-colors resize-none" />
                 </div>
 
-                {/* Notify by Email */}
                 <div className="flex items-center">
-                  <input
-                    type="checkbox"
-                    id="notifyEmail"
-                    checked={notifyEmail}
-                    onChange={(e) => setNotifyEmail(e.target.checked)}
-                    className="w-4 h-4 text-gray-800 border-gray-300 focus:ring-gray-500"
-                  />
-                  <label htmlFor="notifyEmail" className="ml-2 text-sm text-gray-700">
-                    Notificar por email
-                  </label>
+                  <input type="checkbox" id="notifyEmail" checked={notifyEmail} onChange={(e) => setNotifyEmail(e.target.checked)} className="w-4 h-4 text-gray-800 border-gray-300 focus:ring-gray-500" />
+                  <label htmlFor="notifyEmail" className="ml-2 text-sm text-gray-700">Notificar por email</label>
                 </div>
 
-                {/* Attachments */}
                 <div>
-                  <button
-                    type="button"
-                    className="flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900 font-medium underline focus:outline-none focus:ring-2 focus:ring-gray-500"
-                  >
+                  <button type="button" className="flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900 font-medium underline focus:outline-none focus:ring-2 focus:ring-gray-500">
                     <Paperclip className="w-4 h-4" aria-hidden="true" />
                     Añadir archivo
                   </button>
                 </div>
 
-                {/* Schedule Options */}
                 <div className="pt-4 border-t border-gray-300">
-                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-2">
-                    Envío
-                  </label>
+                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-2">Envío</label>
                   <div className="space-y-2">
                     <div className="flex items-center">
-                      <input
-                        type="radio"
-                        id="sendNow"
-                        name="sendTime"
-                        value="now"
-                        checked={sendTime === "now"}
-                        onChange={(e) => setSendTime(e.target.value as "now" | "scheduled")}
-                        className="w-4 h-4 text-gray-800 border-gray-300 focus:ring-gray-500"
-                      />
+                      <input type="radio" id="sendNow" name="sendTime" value="now" checked={sendTime === "now"} onChange={(e) => setSendTime(e.target.value as "now" | "scheduled")} className="w-4 h-4 text-gray-800 border-gray-300 focus:ring-gray-500" />
                       <label htmlFor="sendNow" className="ml-2 text-sm text-gray-700">Enviar ahora</label>
                     </div>
                     <div className="flex items-center">
-                      <input
-                        type="radio"
-                        id="sendScheduled"
-                        name="sendTime"
-                        value="scheduled"
-                        checked={sendTime === "scheduled"}
-                        onChange={(e) => setSendTime(e.target.value as "now" | "scheduled")}
-                        className="w-4 h-4 text-gray-800 border-gray-300 focus:ring-gray-500"
-                      />
+                      <input type="radio" id="sendScheduled" name="sendTime" value="scheduled" checked={sendTime === "scheduled"} onChange={(e) => setSendTime(e.target.value as "now" | "scheduled")} className="w-4 h-4 text-gray-800 border-gray-300 focus:ring-gray-500" />
                       <label htmlFor="sendScheduled" className="ml-2 text-sm text-gray-700">Programar</label>
                     </div>
                   </div>
-
                   {sendTime === "scheduled" && (
                     <div className="mt-3 grid grid-cols-2 gap-3">
                       <div>
                         <label htmlFor="scheduledDate" className="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1">Fecha</label>
-                        <input
-                          type="date"
-                          id="scheduledDate"
-                          value={scheduledDate}
-                          onChange={(e) => setScheduledDate(e.target.value)}
-                          className="w-full px-3 py-2 text-sm text-gray-900 bg-white border border-gray-300 focus:border-gray-500 focus:ring-0 focus:outline-none transition-colors"
-                        />
+                        <input type="date" id="scheduledDate" value={scheduledDate} onChange={(e) => setScheduledDate(e.target.value)} className="w-full px-3 py-2 text-sm text-gray-900 bg-white border border-gray-300 focus:border-gray-500 focus:ring-0 focus:outline-none transition-colors" />
                       </div>
                       <div>
                         <label htmlFor="scheduledTime" className="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1">Hora</label>
-                        <input
-                          type="time"
-                          id="scheduledTime"
-                          value={scheduledTime}
-                          onChange={(e) => setScheduledTime(e.target.value)}
-                          className="w-full px-3 py-2 text-sm text-gray-900 bg-white border border-gray-300 focus:border-gray-500 focus:ring-0 focus:outline-none transition-colors"
-                        />
+                        <input type="time" id="scheduledTime" value={scheduledTime} onChange={(e) => setScheduledTime(e.target.value)} className="w-full px-3 py-2 text-sm text-gray-900 bg-white border border-gray-300 focus:border-gray-500 focus:ring-0 focus:outline-none transition-colors" />
                       </div>
                     </div>
                   )}
                 </div>
               </form>
 
-              {/* Form Footer */}
               <div className="px-4 py-3 bg-gray-100 border-t border-gray-300 space-y-2">
-                <button
-                  type="button"
-                  className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-white text-gray-800 text-sm font-semibold border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-colors"
-                >
+                <button type="button" className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-white text-gray-800 text-sm font-semibold border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-colors">
                   <Eye className="w-4 h-4" aria-hidden="true" />
                   Vista previa
                 </button>
-                <button
-                  type="submit"
-                  onClick={handleSubmit}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gray-800 text-white text-sm font-semibold hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 transition-colors"
-                >
+                <button type="submit" onClick={handleSubmit} className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gray-800 text-white text-sm font-semibold hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 transition-colors">
                   <Send className="w-4 h-4" aria-hidden="true" />
                   Enviar
                 </button>

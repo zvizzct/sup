@@ -21,6 +21,7 @@ export type {
   Destino,
   Rol,
   CategoriaDocumento,
+  CategoriaDocumentoAdmin,
   Afiliado,
   Solicitud,
   Documento,

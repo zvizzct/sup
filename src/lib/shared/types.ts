@@ -32,7 +32,15 @@ export type Destino =
 // Roles
 export type Rol = "Super Admin" | "Admin" | "Moderador";
 
-// Categorías de documentos
+// Categorías de documentos (admin)
+export type CategoriaDocumentoAdmin =
+  | "Exp. Disciplinario"
+  | "Recursos CA"
+  | "Exp. Administrativos"
+  | "Actos Servicio"
+  | "Asuntos Personales";
+
+// Categorías de documentos (general)
 export type CategoriaDocumento =
   | "Convenio Colectivo"
   | "Normativa Interna"

@@ -8,15 +8,7 @@ import { UrgencyBadge, CategoryBadge, getUrgencyBarColor, Badge, UrgencyType } f
 import { PageFooter } from "@/components/admin/PageFooter";
 import { ResultsCount } from "@/components/shared/ResultsCount";
 import { EmptyState } from "@/components/shared/EmptyState";
-
-type Status = "Nueva" | "Asignada" | "En trámite" | "Resuelta";
-type RequestType =
-  | "Expediente disciplinario"
-  | "Recurso de alzada"
-  | "Tema penal"
-  | "Accidente tráfico"
-  | "Asesoramiento laboral"
-  | "Reclamación patrimonial";
+import type { EstadoSolicitud, TipoSolicitud } from "@/lib/shared";
 
 interface LawyerRequest {
   id: string;
@@ -24,10 +16,10 @@ interface LawyerRequest {
   urgency: UrgencyType;
   affiliateName: string;
   tip: string;
-  requestType: RequestType;
+  requestType: TipoSolicitud;
   description: string;
   timeAgo: string;
-  status: Status;
+  status: EstadoSolicitud;
   assignedTo?: string;
 }
 
@@ -75,32 +67,19 @@ export default function SolicitudesPage() {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <ActionBar
-        title="Solicitudes de Abogado"
-        subtitle="Gestión de solicitudes de asesoramiento jurídico"
-      />
+      <ActionBar title="Solicitudes de Abogado" subtitle="Gestión de solicitudes de asesoramiento jurídico" />
 
-      {/* Content */}
-      <div className="p-6">
-        {/* Tab Filters */}
-        <div className="bg-white border border-gray-300 mb-4">
-          <div className="flex">
+      <div className="p-4 sm:p-6">
+        <div className="bg-white border border-gray-300 mb-4 overflow-x-auto">
+          <div className="flex min-w-max">
             {(["Nuevas", "Asignadas", "En trámite", "Resueltas", "Todas"] as const).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`flex items-center gap-2 px-4 py-3 text-sm font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-inset focus:ring-gray-500 ${
-                  activeTab === tab
-                    ? "bg-gray-800 text-white"
-                    : "text-gray-700 hover:bg-gray-100"
-                }`}
+                className={`flex items-center gap-2 px-3 sm:px-4 py-3 text-sm font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-inset focus:ring-gray-500 whitespace-nowrap ${activeTab === tab ? "bg-gray-800 text-white" : "text-gray-700 hover:bg-gray-100"}`}
               >
                 {tab}
-                <span className={`inline-block px-2 py-0.5 text-xs font-semibold ${
-                  activeTab === tab
-                    ? "bg-white/20 text-white"
-                    : "bg-gray-200 text-gray-700"
-                }`}>
+                <span className={`inline-block px-2 py-0.5 text-xs font-semibold ${activeTab === tab ? "bg-white/20 text-white" : "bg-gray-200 text-gray-700"}`}>
                   {getCount(tab)}
                 </span>
               </button>
@@ -108,77 +87,47 @@ export default function SolicitudesPage() {
           </div>
         </div>
 
-        {/* Results Count */}
         <div className="mb-2">
-          <ResultsCount
-            current={filteredRequests.length}
-            total={TOTAL_REQUESTS}
-            label="solicitudes"
-          />
+          <ResultsCount current={filteredRequests.length} total={TOTAL_REQUESTS} label="solicitudes" />
         </div>
 
-        {/* Request Cards */}
-        <div className="space-y-1">
+        <div className="space-y-2 sm:space-y-1">
           {filteredRequests.length === 0 ? (
             <EmptyState message="No se encontraron solicitudes" />
           ) : (
             filteredRequests.map((request) => (
-              <div
-                key={request.id}
-                className="bg-white border border-gray-300 hover:shadow-md transition-shadow overflow-hidden"
-              >
+              <div key={request.id} className="bg-white border border-gray-300 hover:shadow-md transition-shadow overflow-hidden">
                 <div className="flex">
-                  {/* Urgency Indicator Bar */}
                   <div className={`w-1 flex-shrink-0 ${getUrgencyBarColor(request.urgency)}`} />
-
-                  {/* Card Content */}
-                  <div className="flex-1 p-4">
-                    {/* Header Row */}
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="flex items-center gap-3">
-                        <span className="text-sm font-mono font-semibold text-gray-900">
-                          {request.reference}
-                        </span>
+                  <div className="flex-1 p-3 sm:p-4">
+                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-2">
+                      <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+                        <span className="text-sm font-mono font-semibold text-gray-900">{request.reference}</span>
                         <UrgencyBadge urgency={request.urgency} />
                       </div>
-                      <span className="text-xs text-gray-500">
-                        {request.timeAgo}
-                      </span>
+                      <span className="text-xs text-gray-500">{request.timeAgo}</span>
                     </div>
 
-                    {/* Affiliate Info */}
                     <div className="mb-2">
-                      <h3 className="text-sm font-medium text-gray-900">
-                        {request.affiliateName}
-                      </h3>
+                      <h3 className="text-sm font-medium text-gray-900">{request.affiliateName}</h3>
                       <p className="text-xs text-gray-600">TIP: {request.tip}</p>
                     </div>
 
-                    {/* Request Type */}
                     <div className="mb-2">
                       <CategoryBadge category={request.requestType} />
                     </div>
 
-                    {/* Description */}
-                    <p className="text-sm text-gray-700 mb-3 line-clamp-2">
-                      {request.description}
-                    </p>
+                    <p className="text-sm text-gray-700 mb-3 line-clamp-2">{request.description}</p>
 
-                    {/* Footer Row */}
-                    <div className="flex items-center justify-between pt-3 border-t border-gray-200">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-gray-200">
                       <div>
                         {request.assignedTo ? (
-                          <span className="text-xs text-gray-700">
-                            <span className="font-medium">Asignado a:</span> {request.assignedTo}
-                          </span>
+                          <span className="text-xs text-gray-700"><span className="font-medium">Asignado a:</span> {request.assignedTo}</span>
                         ) : (
                           <Badge color="amber">Sin asignar</Badge>
                         )}
                       </div>
-                      <Link
-                        href={`/admin/solicitudes/${request.id}`}
-                        className="flex items-center gap-2 px-4 py-2 bg-gray-800 text-white text-sm font-semibold hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 transition-colors"
-                      >
+                      <Link href={`/admin/solicitudes/${request.id}`} className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-800 text-white text-sm font-semibold hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 transition-colors">
                         Ver detalle
                         <ArrowRight className="w-4 h-4" aria-hidden="true" />
                       </Link>

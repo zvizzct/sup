@@ -66,7 +66,6 @@ export default function LawyerRequestDetailPage({ params }: { params: { id: stri
         setAssignedLawyer(lawyer);
         setIsAssigned(true);
         setAssignmentDate(new Date().toLocaleDateString('es-ES'));
-        alert(`Solicitud asignada a ${lawyer.name}. Se ha enviado una notificación por email.`);
       }
     }
   };
@@ -92,9 +91,8 @@ export default function LawyerRequestDetailPage({ params }: { params: { id: stri
         }
       />
 
-      {/* Content */}
-      <div className="p-6">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div className="p-4 sm:p-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
           {/* Left Column - 2/3 */}
           <div className="lg:col-span-2 space-y-4">
             {/* Datos del Afiliado */}
@@ -191,15 +189,15 @@ export default function LawyerRequestDetailPage({ params }: { params: { id: stri
               </div>
               <div className="divide-y divide-gray-200">
                 {REQUEST_DATA.documents.map((doc) => (
-                  <div key={doc.id} className="flex items-center justify-between px-4 py-3 hover:bg-gray-50 transition-colors">
-                    <div className="flex items-center gap-3">
-                      <FileText className="w-5 h-5 text-red-700" aria-hidden="true" />
-                      <div>
-                        <p className="text-sm font-medium text-gray-900">{doc.name}</p>
-                        <p className="text-xs text-gray-500">{doc.size} · Subido el {doc.uploadedAt}</p>
+                  <div key={doc.id} className="flex flex-col sm:flex-row sm:items-center justify-between px-4 py-3 hover:bg-gray-50 transition-colors gap-2">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <FileText className="w-5 h-5 text-red-700 flex-shrink-0" aria-hidden="true" />
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium text-gray-900 truncate">{doc.name}</p>
+                        <p className="text-xs text-gray-500">{doc.size} · {doc.uploadedAt}</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-1 self-end sm:self-auto">
                       <button className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500" title="Ver">
                         <Eye className="w-4 h-4" />
                       </button>

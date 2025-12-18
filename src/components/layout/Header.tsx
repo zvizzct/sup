@@ -33,12 +33,9 @@ export function Header({ variant = "public", userName, userTip, userDestino }: H
         <div className="bg-sup-blue">
           <div className="max-w-6xl mx-auto px-4 sm:px-6">
             <div className="flex items-center justify-between h-8">
-              <div className="flex items-center gap-2">
-                <Shield className="w-3.5 h-3.5 text-sup-yellow" aria-hidden="true" />
-                <span className="text-xs text-blue-200 font-medium tracking-wide">
+              <span className="text-xs text-blue-200 font-medium tracking-wide">
                   Área Privada del Afiliado
                 </span>
-              </div>
               <div className="hidden sm:flex items-center gap-4 text-xs text-blue-200">
                 <a
                   href="tel:914615833"

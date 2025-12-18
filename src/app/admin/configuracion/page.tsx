@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Download, Edit2, Trash2, Power, Eye } from "lucide-react";
+import { Plus, Download, Edit2, Trash2, Power, Eye, ArrowRight } from "lucide-react";
 import { ActionBar } from "@/components/admin/ActionBar";
 import { RoleBadge, StatusBadge, RoleType, StatusType } from "@/components/shared/Badge";
 import { PageFooter } from "@/components/admin/PageFooter";
@@ -44,11 +44,6 @@ const auditLogs: AuditLog[] = [
   { id: 3, fechaHora: "2025-12-14 09:58:12", usuario: "Laura Sánchez", accion: "Asignación de abogado", detalle: "Caso #1245 asignado a Dra. Patricia Morales", ip: "192.168.1.118" },
   { id: 4, fechaHora: "2025-12-14 09:45:33", usuario: "Miguel Torres", accion: "Actualización de caso", detalle: "Estado de caso #1240 cambiado a En Proceso", ip: "192.168.1.107" },
   { id: 5, fechaHora: "2025-12-14 09:30:18", usuario: "Carlos Mendoza", accion: "Inicio de sesión", detalle: "Acceso al panel de administración", ip: "192.168.1.105" },
-  { id: 6, fechaHora: "2025-12-13 18:50:42", usuario: "Miguel Torres", accion: "Carga de documento", detalle: "Documento agregado al caso #1238", ip: "192.168.1.107" },
-  { id: 7, fechaHora: "2025-12-13 18:45:15", usuario: "Miguel Torres", accion: "Inicio de sesión", detalle: "Acceso al panel de administración", ip: "192.168.1.107" },
-  { id: 8, fechaHora: "2025-12-13 17:30:22", usuario: "Ana García", accion: "Eliminación de documento", detalle: "Documento #5801 eliminado del caso #1235", ip: "192.168.1.112" },
-  { id: 9, fechaHora: "2025-12-13 16:20:55", usuario: "Laura Sánchez", accion: "Modificación de afiliado", detalle: "Datos actualizados - Afiliado #4567", ip: "192.168.1.118" },
-  { id: 10, fechaHora: "2025-12-13 15:45:08", usuario: "Carlos Mendoza", accion: "Creación de usuario", detalle: "Nuevo usuario admin: Javier Ruiz", ip: "192.168.1.105" },
 ];
 
 const TOTAL_LOGS = 50;
@@ -61,79 +56,55 @@ export default function ConfiguracionPage() {
   const [filterAction, setFilterAction] = useState("");
 
   const tabs = [
-    { id: "usuarios" as const, label: "Usuarios Admin" },
+    { id: "usuarios" as const, label: "Usuarios" },
     { id: "abogados" as const, label: "Abogados" },
     { id: "categorias" as const, label: "Categorías" },
-    { id: "logs" as const, label: "Logs Auditoría" },
+    { id: "logs" as const, label: "Logs" },
   ];
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <ActionBar
-        title="Configuración del Sistema"
-        subtitle="Gestión de usuarios, abogados y configuración general"
-      />
+      <ActionBar title="Configuración" subtitle="Gestión de usuarios, abogados y configuración general" />
 
-      {/* Content */}
-      <div className="p-6">
-        {/* Tab Navigation */}
-        <div className="bg-white border border-gray-300 flex mb-4">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex-1 px-4 py-3 text-sm font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-inset focus:ring-gray-500 ${
-                activeTab === tab.id
-                  ? "bg-gray-800 text-white"
-                  : "text-gray-700 hover:bg-gray-100"
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
+      <div className="p-4 sm:p-6">
+        <div className="bg-white border border-gray-300 mb-4 overflow-x-auto">
+          <div className="flex min-w-max">
+            {tabs.map((tab) => (
+              <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`flex-1 px-3 sm:px-4 py-3 text-sm font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-inset focus:ring-gray-500 whitespace-nowrap ${activeTab === tab.id ? "bg-gray-800 text-white" : "text-gray-700 hover:bg-gray-100"}`}>
+                {tab.label}
+              </button>
+            ))}
+          </div>
         </div>
 
-        {/* Tab Content */}
         {activeTab === "usuarios" && (
           <div className="space-y-4">
-            {/* Roles Info */}
-            <div className="bg-white border border-gray-300 p-4">
+            <div className="bg-white border border-gray-300 p-3 sm:p-4">
               <h3 className="text-xs font-bold text-gray-700 uppercase tracking-wide mb-3">Roles y Permisos</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                <div>
-                  <span className="font-semibold text-gray-900">Super Admin:</span>
-                  <p className="text-gray-600 text-xs mt-1">Acceso total al sistema, gestión de usuarios y configuración global.</p>
-                </div>
-                <div>
-                  <span className="font-semibold text-gray-900">Admin:</span>
-                  <p className="text-gray-600 text-xs mt-1">Gestión de casos, afiliados, documentos y asignación de abogados.</p>
-                </div>
-                <div>
-                  <span className="font-semibold text-gray-900">Moderador:</span>
-                  <p className="text-gray-600 text-xs mt-1">Consulta de casos y documentos, actualizaciones básicas.</p>
-                </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 text-sm">
+                <div><span className="font-semibold text-gray-900">Super Admin:</span><p className="text-gray-600 text-xs mt-1">Acceso total al sistema.</p></div>
+                <div><span className="font-semibold text-gray-900">Admin:</span><p className="text-gray-600 text-xs mt-1">Gestión de casos y afiliados.</p></div>
+                <div><span className="font-semibold text-gray-900">Moderador:</span><p className="text-gray-600 text-xs mt-1">Consulta y actualizaciones.</p></div>
               </div>
             </div>
 
-            {/* Header */}
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <ResultsCount current={adminUsers.length} total={adminUsers.length} label="usuarios" />
-              <button className="flex items-center gap-2 px-4 py-2 bg-gray-800 text-white text-sm font-semibold hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 transition-colors">
+              <button className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-800 text-white text-sm font-semibold hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 transition-colors">
                 <Plus className="w-4 h-4" aria-hidden="true" />
                 Nuevo Usuario
               </button>
             </div>
 
-            {/* Users Table */}
             <div className="bg-white border border-gray-300">
-              <div className="grid grid-cols-12 gap-2 px-4 py-2 bg-gray-100 text-xs font-bold text-gray-700 uppercase tracking-wide border-b border-gray-300">
+              <div className="hidden lg:grid grid-cols-12 gap-2 px-4 py-2 bg-gray-100 text-xs font-bold text-gray-700 uppercase tracking-wide border-b border-gray-300">
                 <div className="col-span-3">Nombre</div>
                 <div className="col-span-3">Email</div>
                 <div className="col-span-2">Rol</div>
                 <div className="col-span-2">Último Acceso</div>
                 <div className="col-span-2 text-right">Acciones</div>
               </div>
-              <div className="divide-y divide-gray-200">
+              <div className="hidden lg:block divide-y divide-gray-200">
                 {adminUsers.map((user) => (
                   <div key={user.id} className="grid grid-cols-12 gap-2 px-4 py-3 items-center hover:bg-gray-50 transition-colors">
                     <div className="col-span-3 text-sm font-medium text-gray-900">{user.nombre}</div>
@@ -141,17 +112,28 @@ export default function ConfiguracionPage() {
                     <div className="col-span-2"><RoleBadge role={user.rol} /></div>
                     <div className="col-span-2 text-sm text-gray-600 tabular-nums">{user.ultimoAcceso}</div>
                     <div className="col-span-2 flex items-center justify-end gap-1">
-                      <button className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500" title="Ver">
-                        <Eye className="w-4 h-4" />
-                      </button>
-                      <button className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500" title="Editar">
-                        <Edit2 className="w-4 h-4" />
-                      </button>
-                      {user.rol !== "Super Admin" && (
-                        <button className="p-2 text-gray-600 hover:text-red-700 hover:bg-red-50 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500" title="Eliminar">
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      )}
+                      <button className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-200 transition-colors" title="Ver"><Eye className="w-4 h-4" /></button>
+                      <button className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-200 transition-colors" title="Editar"><Edit2 className="w-4 h-4" /></button>
+                      {user.rol !== "Super Admin" && <button className="p-2 text-gray-600 hover:text-red-700 hover:bg-red-50 transition-colors" title="Eliminar"><Trash2 className="w-4 h-4" /></button>}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="lg:hidden divide-y divide-gray-200">
+                {adminUsers.map((user) => (
+                  <div key={user.id} className="px-4 py-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-sm font-medium text-gray-900">{user.nombre}</span>
+                          <RoleBadge role={user.rol} />
+                        </div>
+                        <p className="text-xs text-gray-600">{user.email}</p>
+                        <p className="text-xs text-gray-500 mt-0.5">Último acceso: {user.ultimoAcceso}</p>
+                      </div>
+                      <div className="flex gap-1">
+                        <button className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-200 transition-colors" title="Editar"><Edit2 className="w-4 h-4" /></button>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -162,18 +144,16 @@ export default function ConfiguracionPage() {
 
         {activeTab === "abogados" && (
           <div className="space-y-4">
-            {/* Header */}
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <ResultsCount current={abogados.length} total={abogados.length} label="abogados" />
-              <button className="flex items-center gap-2 px-4 py-2 bg-gray-800 text-white text-sm font-semibold hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 transition-colors">
+              <button className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-800 text-white text-sm font-semibold hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 transition-colors">
                 <Plus className="w-4 h-4" aria-hidden="true" />
                 Nuevo Abogado
               </button>
             </div>
 
-            {/* Lawyers Table */}
             <div className="bg-white border border-gray-300">
-              <div className="grid grid-cols-12 gap-2 px-4 py-2 bg-gray-100 text-xs font-bold text-gray-700 uppercase tracking-wide border-b border-gray-300">
+              <div className="hidden xl:grid grid-cols-12 gap-2 px-4 py-2 bg-gray-100 text-xs font-bold text-gray-700 uppercase tracking-wide border-b border-gray-300">
                 <div className="col-span-2">Nombre</div>
                 <div className="col-span-2">Email</div>
                 <div className="col-span-2">Especialidad</div>
@@ -182,7 +162,7 @@ export default function ConfiguracionPage() {
                 <div className="col-span-1">Estado</div>
                 <div className="col-span-2 text-right">Acciones</div>
               </div>
-              <div className="divide-y divide-gray-200">
+              <div className="hidden xl:block divide-y divide-gray-200">
                 {abogados.map((abogado) => (
                   <div key={abogado.id} className="grid grid-cols-12 gap-2 px-4 py-3 items-center hover:bg-gray-50 transition-colors">
                     <div className="col-span-2 text-sm font-medium text-gray-900">{abogado.nombre}</div>
@@ -192,19 +172,27 @@ export default function ConfiguracionPage() {
                     <div className="col-span-1 text-sm text-gray-900 text-center tabular-nums">{abogado.casosActivos}</div>
                     <div className="col-span-1"><StatusBadge status={abogado.estado as StatusType} /></div>
                     <div className="col-span-2 flex items-center justify-end gap-1">
-                      <button className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500" title="Ver">
-                        <Eye className="w-4 h-4" />
-                      </button>
-                      <button className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500" title="Editar">
-                        <Edit2 className="w-4 h-4" />
-                      </button>
-                      <button className={`p-2 transition-colors focus:outline-none focus:ring-2 ${
-                        abogado.estado === "Activo"
-                          ? "text-gray-600 hover:text-amber-700 hover:bg-amber-50 focus:ring-amber-500"
-                          : "text-gray-600 hover:text-green-700 hover:bg-green-50 focus:ring-green-500"
-                      }`} title={abogado.estado === "Activo" ? "Desactivar" : "Activar"}>
-                        <Power className="w-4 h-4" />
-                      </button>
+                      <button className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-200 transition-colors" title="Ver"><Eye className="w-4 h-4" /></button>
+                      <button className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-200 transition-colors" title="Editar"><Edit2 className="w-4 h-4" /></button>
+                      <button className={`p-2 transition-colors ${abogado.estado === "Activo" ? "text-gray-600 hover:text-amber-700 hover:bg-amber-50" : "text-gray-600 hover:text-green-700 hover:bg-green-50"}`} title={abogado.estado === "Activo" ? "Desactivar" : "Activar"}><Power className="w-4 h-4" /></button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="xl:hidden divide-y divide-gray-200">
+                {abogados.map((abogado) => (
+                  <div key={abogado.id} className="px-4 py-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-sm font-medium text-gray-900">{abogado.nombre}</span>
+                          <StatusBadge status={abogado.estado as StatusType} />
+                        </div>
+                        <p className="text-xs text-gray-600">{abogado.especialidad}</p>
+                        <p className="text-xs text-gray-500 mt-0.5">{abogado.email}</p>
+                        <p className="text-xs text-gray-500">{abogado.telefono} · {abogado.casosActivos} casos activos</p>
+                      </div>
+                      <button className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-200 transition-colors" title="Editar"><Edit2 className="w-4 h-4" /></button>
                     </div>
                   </div>
                 ))}
@@ -215,54 +203,37 @@ export default function ConfiguracionPage() {
 
         {activeTab === "categorias" && (
           <div className="space-y-4">
-            {/* Header */}
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <ResultsCount current={categorias.length} total={categorias.length} label="categorías" />
-              <button className="flex items-center gap-2 px-4 py-2 bg-gray-800 text-white text-sm font-semibold hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 transition-colors">
+              <button className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-800 text-white text-sm font-semibold hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 transition-colors">
                 <Plus className="w-4 h-4" aria-hidden="true" />
                 Nueva Categoría
               </button>
             </div>
 
-            {/* Document States Info */}
-            <div className="bg-white border border-gray-300 p-4">
+            <div className="bg-white border border-gray-300 p-3 sm:p-4">
               <h3 className="text-xs font-bold text-gray-700 uppercase tracking-wide mb-3">Estados de Documentos</h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
-                <div className="flex items-center gap-2">
-                  <span className="w-3 h-3 bg-amber-500" aria-hidden="true"></span>
-                  <span className="text-gray-700 text-xs">Pendiente</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="w-3 h-3 bg-blue-500" aria-hidden="true"></span>
-                  <span className="text-gray-700 text-xs">En Revisión</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="w-3 h-3 bg-green-500" aria-hidden="true"></span>
-                  <span className="text-gray-700 text-xs">Aprobado</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="w-3 h-3 bg-red-500" aria-hidden="true"></span>
-                  <span className="text-gray-700 text-xs">Rechazado</span>
-                </div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
+                <div className="flex items-center gap-2"><span className="w-3 h-3 bg-amber-500" aria-hidden="true"></span><span className="text-gray-700 text-xs">Pendiente</span></div>
+                <div className="flex items-center gap-2"><span className="w-3 h-3 bg-blue-500" aria-hidden="true"></span><span className="text-gray-700 text-xs">En Revisión</span></div>
+                <div className="flex items-center gap-2"><span className="w-3 h-3 bg-green-500" aria-hidden="true"></span><span className="text-gray-700 text-xs">Aprobado</span></div>
+                <div className="flex items-center gap-2"><span className="w-3 h-3 bg-red-500" aria-hidden="true"></span><span className="text-gray-700 text-xs">Rechazado</span></div>
               </div>
             </div>
 
-            {/* Categories Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               {categorias.map((categoria) => (
-                <div key={categoria.id} className="bg-white border border-gray-300 p-4 hover:shadow-md transition-shadow">
+                <div key={categoria.id} className="bg-white border border-gray-300 p-3 sm:p-4 hover:shadow-md transition-shadow">
                   <div className="flex justify-between items-start mb-2">
                     <div>
                       <h3 className="text-sm font-medium text-gray-900">{categoria.nombre}</h3>
                       <p className="text-xs text-gray-600 mt-1">{categoria.descripcion}</p>
                     </div>
-                    <span className="inline-block px-2 py-0.5 text-xs font-semibold bg-gray-800 text-white">
-                      {categoria.documentos}
-                    </span>
+                    <span className="inline-block px-2 py-0.5 text-xs font-semibold bg-gray-800 text-white">{categoria.documentos}</span>
                   </div>
                   <div className="flex gap-3 mt-3 pt-3 border-t border-gray-200">
-                    <button className="text-sm text-gray-700 hover:text-gray-900 font-medium underline focus:outline-none focus:ring-2 focus:ring-gray-500">Editar</button>
-                    <button className="text-sm text-red-600 hover:text-red-800 font-medium underline focus:outline-none focus:ring-2 focus:ring-red-500">Eliminar</button>
+                    <button className="text-sm text-gray-700 hover:text-gray-900 font-medium underline">Editar</button>
+                    <button className="text-sm text-red-600 hover:text-red-800 font-medium underline">Eliminar</button>
                   </div>
                 </div>
               ))}
@@ -272,89 +243,74 @@ export default function ConfiguracionPage() {
 
         {activeTab === "logs" && (
           <div className="space-y-4">
-            {/* Header */}
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <ResultsCount current={auditLogs.length} total={TOTAL_LOGS} label="registros" />
-              <button className="flex items-center gap-2 px-4 py-2 bg-gray-800 text-white text-sm font-semibold hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 transition-colors">
+              <button className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-800 text-white text-sm font-semibold hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 transition-colors">
                 <Download className="w-4 h-4" aria-hidden="true" />
-                Exportar Logs
+                Exportar
               </button>
             </div>
 
-            {/* Filters */}
-            <div className="bg-white border border-gray-300 p-4">
+            <div className="bg-white border border-gray-300 p-3 sm:p-4">
               <h3 className="text-xs font-bold text-gray-700 uppercase tracking-wide mb-3">Filtros</h3>
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                 <div>
                   <label className="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1">Fecha Desde</label>
-                  <input
-                    type="date"
-                    value={filterDateFrom}
-                    onChange={(e) => setFilterDateFrom(e.target.value)}
-                    className="w-full px-3 py-2 text-sm text-gray-900 bg-white border border-gray-300 focus:border-gray-500 focus:ring-0 focus:outline-none transition-colors"
-                  />
+                  <input type="date" value={filterDateFrom} onChange={(e) => setFilterDateFrom(e.target.value)} className="w-full px-3 py-2 text-sm text-gray-900 bg-white border border-gray-300 focus:border-gray-500 focus:ring-0 focus:outline-none transition-colors" />
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1">Fecha Hasta</label>
-                  <input
-                    type="date"
-                    value={filterDateTo}
-                    onChange={(e) => setFilterDateTo(e.target.value)}
-                    className="w-full px-3 py-2 text-sm text-gray-900 bg-white border border-gray-300 focus:border-gray-500 focus:ring-0 focus:outline-none transition-colors"
-                  />
+                  <input type="date" value={filterDateTo} onChange={(e) => setFilterDateTo(e.target.value)} className="w-full px-3 py-2 text-sm text-gray-900 bg-white border border-gray-300 focus:border-gray-500 focus:ring-0 focus:outline-none transition-colors" />
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1">Usuario</label>
-                  <select
-                    value={filterUser}
-                    onChange={(e) => setFilterUser(e.target.value)}
-                    className="w-full px-3 py-2 text-sm text-gray-900 bg-white border border-gray-300 focus:border-gray-500 focus:ring-0 focus:outline-none transition-colors"
-                  >
+                  <select value={filterUser} onChange={(e) => setFilterUser(e.target.value)} className="w-full px-3 py-2 text-sm text-gray-900 bg-white border border-gray-300 focus:border-gray-500 focus:ring-0 focus:outline-none transition-colors">
                     <option value="">Todos</option>
                     <option value="Carlos Mendoza">Carlos Mendoza</option>
                     <option value="Ana García">Ana García</option>
                     <option value="Miguel Torres">Miguel Torres</option>
-                    <option value="Laura Sánchez">Laura Sánchez</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1">Tipo de Acción</label>
-                  <select
-                    value={filterAction}
-                    onChange={(e) => setFilterAction(e.target.value)}
-                    className="w-full px-3 py-2 text-sm text-gray-900 bg-white border border-gray-300 focus:border-gray-500 focus:ring-0 focus:outline-none transition-colors"
-                  >
+                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1">Acción</label>
+                  <select value={filterAction} onChange={(e) => setFilterAction(e.target.value)} className="w-full px-3 py-2 text-sm text-gray-900 bg-white border border-gray-300 focus:border-gray-500 focus:ring-0 focus:outline-none transition-colors">
                     <option value="">Todas</option>
                     <option value="Creación de caso">Creación de caso</option>
-                    <option value="Modificación de documento">Modificación de documento</option>
-                    <option value="Asignación de abogado">Asignación de abogado</option>
                     <option value="Inicio de sesión">Inicio de sesión</option>
                   </select>
                 </div>
               </div>
             </div>
 
-            {/* Logs Table */}
             <div className="bg-white border border-gray-300">
-              <div className="grid grid-cols-12 gap-2 px-4 py-2 bg-gray-100 text-xs font-bold text-gray-700 uppercase tracking-wide border-b border-gray-300">
+              <div className="hidden lg:grid grid-cols-12 gap-2 px-4 py-2 bg-gray-100 text-xs font-bold text-gray-700 uppercase tracking-wide border-b border-gray-300">
                 <div className="col-span-2">Fecha/Hora</div>
                 <div className="col-span-2">Usuario</div>
                 <div className="col-span-2">Acción</div>
                 <div className="col-span-4">Detalle</div>
                 <div className="col-span-2">IP</div>
               </div>
-              <div className="divide-y divide-gray-200">
+              <div className="hidden lg:block divide-y divide-gray-200">
                 {auditLogs.map((log) => (
                   <div key={log.id} className="grid grid-cols-12 gap-2 px-4 py-3 items-center hover:bg-gray-50 transition-colors">
                     <div className="col-span-2 text-sm text-gray-900 tabular-nums">{log.fechaHora}</div>
                     <div className="col-span-2 text-sm font-medium text-gray-900">{log.usuario}</div>
-                    <div className="col-span-2">
-                      <span className="inline-block px-2 py-0.5 text-xs font-semibold bg-blue-100 text-blue-800 border border-blue-300">
-                        {log.accion}
-                      </span>
-                    </div>
+                    <div className="col-span-2"><span className="inline-block px-2 py-0.5 text-xs font-semibold bg-blue-100 text-blue-800 border border-blue-300">{log.accion}</span></div>
                     <div className="col-span-4 text-sm text-gray-600 truncate">{log.detalle}</div>
                     <div className="col-span-2 text-sm text-gray-500 font-mono">{log.ip}</div>
+                  </div>
+                ))}
+              </div>
+              <div className="lg:hidden divide-y divide-gray-200">
+                {auditLogs.map((log) => (
+                  <div key={log.id} className="px-4 py-3">
+                    <div className="flex items-center justify-between gap-2 mb-1">
+                      <span className="text-xs text-gray-500 tabular-nums">{log.fechaHora}</span>
+                      <span className="inline-block px-2 py-0.5 text-xs font-semibold bg-blue-100 text-blue-800">{log.accion}</span>
+                    </div>
+                    <p className="text-sm font-medium text-gray-900">{log.usuario}</p>
+                    <p className="text-xs text-gray-600 mt-0.5">{log.detalle}</p>
+                    <p className="text-xs text-gray-400 font-mono mt-0.5">{log.ip}</p>
                   </div>
                 ))}
               </div>
