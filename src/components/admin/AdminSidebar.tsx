@@ -11,6 +11,7 @@ import {
   Scale,
   MessageSquare,
   Settings,
+  BarChart3,
   LogOut,
   ChevronRight,
   Menu,
@@ -23,6 +24,7 @@ const navigation = [
   { name: "Documentos", href: "/admin/documentos", icon: FileText },
   { name: "Solicitudes", href: "/admin/solicitudes", icon: Scale },
   { name: "Comunicaciones", href: "/admin/comunicaciones", icon: MessageSquare },
+  { name: "Estadísticas", href: "/admin/estadisticas", icon: BarChart3 },
   { name: "Configuración", href: "/admin/configuracion", icon: Settings },
 ];
 
